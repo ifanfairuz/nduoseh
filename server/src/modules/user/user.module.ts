@@ -33,6 +33,8 @@ import { UserController } from './controller/user.controller';
 import { GetUserUseCase } from './use-case/user/get.user.use-case';
 import { UpdateUserUseCase } from './use-case/user/update.user.use-case';
 import { TokenController } from './controller/token.controller';
+import { UserImageDisk } from './storage/user-image.disk';
+import { LocalStorageService } from 'src/services/storage/local-storage.service';
 
 function genMetadata(config: UserConfig): ModuleMetadata {
   const verifyTokenProvider: Provider = {
@@ -50,11 +52,16 @@ function genMetadata(config: UserConfig): ModuleMetadata {
         provide: 'USER_CONFIG',
         useValue: config,
       },
+      {
+        provide: 'USER_IMAGE_STORAGE_DRIVER',
+        useExisting: LocalStorageService,
+      },
 
       // services
       JwtService,
       AccessTokenService,
       RefreshTokenService,
+      UserImageDisk,
 
       // repositories
       AccessTokenRepository,
@@ -79,6 +86,9 @@ function genMetadata(config: UserConfig): ModuleMetadata {
     exports: [
       // exported modules
       CipherModule,
+
+      // exported services
+      UserImageDisk,
 
       // exported repositories
       AccessTokenRepository,

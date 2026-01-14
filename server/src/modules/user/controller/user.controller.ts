@@ -7,6 +7,10 @@ import {
   Body,
   Put,
   FileValidator,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
 } from '@nestjs/common';
 
 import { IFile } from '@nestjs/common/pipes/file/interfaces';
@@ -16,6 +20,9 @@ import type { VerifiedToken } from '@panah/contract';
 import { Validation } from 'src/utils/validation';
 import { GetUserUseCase } from '../use-case/user/get.user.use-case';
 import { UpdateUserUseCase } from '../use-case/user/update.user.use-case';
+import { UpdateImageUserUseCase } from '../use-case/user/update-image.user.use-case';
+import { UserImageDisk } from '../storage/user-image.disk';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 export class UserImageValidator extends FileValidator {
   constructor() {
@@ -60,6 +67,8 @@ export class UserController {
   constructor(
     @Inject() private readonly get: GetUserUseCase,
     @Inject() private readonly update: UpdateUserUseCase,
+    @Inject() private readonly updateImage: UpdateImageUserUseCase,
+    @Inject() private readonly disk: UserImageDisk,
   ) {}
 
   /**
@@ -80,7 +89,7 @@ export class UserController {
       throw new UnauthorizedException();
     }
 
-    return new UserResponse(res);
+    return await UserResponse.withImageUrl(res, this.disk);
   }
 
   /**
@@ -106,6 +115,37 @@ export class UserController {
       throw new UnauthorizedException();
     }
 
-    return new UserResponse(res);
+    return await UserResponse.withImageUrl(res, this.disk);
+  }
+
+  /**
+   * Update user image
+   *
+   * @param uploadedFile
+   * @param {VerifiedToken} token
+   * @returns {Promise<User>}
+   */
+  @Post('image')
+  @HttpCode(200)
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiResponse(undefined, {
+    status: 200,
+    example: UserResponse.example,
+  })
+  async updateUserImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new UserImageValidator()],
+      }),
+    )
+    image: Express.Multer.File,
+    @Token() token: VerifiedToken,
+  ) {
+    const res = await this.updateImage.execute(token, image.buffer);
+    if (!res) {
+      throw new UnauthorizedException();
+    }
+
+    return await UserResponse.withImageUrl(res, this.disk);
   }
 }

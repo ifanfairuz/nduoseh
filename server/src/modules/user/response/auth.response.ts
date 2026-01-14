@@ -1,6 +1,7 @@
 import type { LoginResponse, TokenResponse } from '@panah/contract';
 import { UserResponse } from './user.response';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserImageDisk } from '../storage/user-image.disk';
 
 export class AuthResponse {
   constructor(payload: LoginResponse) {
@@ -9,14 +10,11 @@ export class AuthResponse {
     this.user = new UserResponse(payload.user);
   }
 
-  // static async withImageUrl(
-  //   payload: LoginResponse,
-  //   storage: UserImageStorage,
-  // ) {
-  //   const response = new AuthResponse(payload);
-  //   response.user = await UserResponse.withImageUrl(payload.user, storage);
-  //   return response;
-  // }
+  static async withImageUrl(payload: LoginResponse, storage: UserImageDisk) {
+    const response = new AuthResponse(payload);
+    response.user = await UserResponse.withImageUrl(payload.user, storage);
+    return response;
+  }
 
   @ApiProperty({
     description: 'JWT Access Token',

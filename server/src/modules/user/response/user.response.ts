@@ -1,4 +1,5 @@
 import { User } from '@panah/contract';
+import { UserImageDisk } from '../storage/user-image.disk';
 
 export class UserResponse {
   static example = {
@@ -24,10 +25,11 @@ export class UserResponse {
     this.image = payload.image;
   }
 
-  // static async withImageUrl(payload: User, storage: UserImageStorage) {
-  //   return new UserResponse({
-  //     ...payload,
-  //     image: payload.image ? await storage.getUrl(payload.image) : null,
-  //   });
-  // }
+  static async withImageUrl(payload: User, storage: UserImageDisk) {
+    const image = payload.image ? await storage.get(payload.image) : null;
+    return new UserResponse({
+      ...payload,
+      image: (await image?.getUrl()) ?? null,
+    });
+  }
 }

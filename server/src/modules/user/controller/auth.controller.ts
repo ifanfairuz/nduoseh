@@ -14,6 +14,7 @@ import z from 'zod';
 import { LoginPasswordUseCase } from '../use-case/login/login-password.use-case';
 import { RegisterPasswordUseCase } from '../use-case/register/register-password.use-case';
 import { AuthResponse } from '../response/auth.response';
+import { UserImageDisk } from '../storage/user-image.disk';
 
 const RegisterBody = z.object({
   email: z.email('Invalid email'),
@@ -43,6 +44,7 @@ export class AuthController {
   constructor(
     @Inject() private readonly loginUseCase: LoginPasswordUseCase,
     @Inject() private readonly registerUseCase: RegisterPasswordUseCase,
+    @Inject() private readonly disk: UserImageDisk,
   ) {}
   /**
    * Register user with password
@@ -76,7 +78,7 @@ export class AuthController {
       },
     );
 
-    return new AuthResponse(res);
+    return await AuthResponse.withImageUrl(res, this.disk);
   }
 
   /**
@@ -105,6 +107,6 @@ export class AuthController {
       },
     });
 
-    return new AuthResponse(payload);
+    return await AuthResponse.withImageUrl(payload, this.disk);
   }
 }

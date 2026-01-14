@@ -38,11 +38,12 @@ function setupApiDocs(app: INestApplication, options?: SwaggerCustomOptions) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
-
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
   const logger = app.get(Logger);
   app.useLogger(logger);
+  app.enableCors();
 
   if (process.env.SWAGGER_DISABLE !== 'true') {
     setupApiDocs(app);
