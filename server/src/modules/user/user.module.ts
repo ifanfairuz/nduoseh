@@ -35,6 +35,7 @@ import { UpdateUserUseCase } from './use-case/user/update.user.use-case';
 import { TokenController } from './controller/token.controller';
 import { UserImageDisk } from './storage/user-image.disk';
 import { LocalStorageService } from 'src/services/storage/local-storage.service';
+import { UpdateImageUserUseCase } from './use-case/user/update-image.user.use-case';
 
 function genMetadata(config: UserConfig): ModuleMetadata {
   const verifyTokenProvider: Provider = {
@@ -82,6 +83,7 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       LogoutUseCase,
       GetUserUseCase,
       UpdateUserUseCase,
+      UpdateImageUserUseCase,
     ],
     exports: [
       // exported modules
@@ -109,6 +111,7 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       LogoutUseCase,
       GetUserUseCase,
       UpdateUserUseCase,
+      UpdateImageUserUseCase,
     ],
     controllers: [
       AuthController,
