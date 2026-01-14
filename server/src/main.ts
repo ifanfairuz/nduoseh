@@ -23,8 +23,8 @@ import { INestApplication } from '@nestjs/common';
 function setupApiDocs(app: INestApplication, options?: SwaggerCustomOptions) {
   const path = process.env.SWAGGER_URL ?? 'doc';
   const doc = new DocumentBuilder()
-    .setTitle('Kai Server API')
-    .setDescription('The Kai Server API documentation')
+    .setTitle('Panah Server API')
+    .setDescription('The Panah Server API documentation')
     .setVersion(version)
     .addBearerAuth()
     .addTag('HealthCheck', 'Application health check')
