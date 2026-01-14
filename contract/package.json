@@ -1,0 +1,8 @@
+{
+  "name": "@panah/contract",
+  "version": "0.0.1",
+  "description": "contract dependencies for panah app",
+  "license": "ISC",
+  "author": "ifanfairuz",
+  "main": "index.ts"
+}

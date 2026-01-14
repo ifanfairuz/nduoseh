@@ -1,0 +1,36 @@
+{
+  "name": "panah",
+  "private": true,
+  "description": "Modular Sales App",
+  "keywords": [
+    "pos",
+    "sales",
+    "app",
+    "modular"
+  ],
+  "homepage": "https://github.com/ifanfairuz/panah#readme",
+  "bugs": {
+    "url": "https://github.com/ifanfairuz/panah/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ifanfairuz/panah.git"
+  },
+  "license": "ISC",
+  "author": "ifanfairuz",
+  "workspaces": [
+    "core",
+    "contract",
+    "server",
+    "web"
+  ],
+  "packageManager": "npm@11.6.2",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build"
+  },
+  "devDependencies": {
+    "@types/multer": "^2.0.0",
+    "turbo": "^2.7.4"
+  }
+}

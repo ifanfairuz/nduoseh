@@ -1,0 +1,107 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+model User {
+    id             String    @id @db.Char(24)
+    name           String    @db.VarChar(255)
+    email          String    @db.VarChar(255)
+    email_verified Boolean   @default(false)
+    image          String?
+    callname       String?   @db.VarChar(20)
+    created_at     DateTime  @default(now()) @db.Timestamptz()
+    updated_at     DateTime  @default(now()) @updatedAt @db.Timestamptz()
+    deleted_at     DateTime? @db.Timestamptz()
+
+    auth_sessions AuthSession[]
+    accounts      Account[]
+
+    @@index([email], map: "idx_users_email")
+    @@index([deleted_at], map: "idx_users_deleted_at")
+    @@map("users")
+}
+
+model AuthSession {
+    id         String   @id @db.Char(30)
+    user_id    String   @db.Char(24)
+    account_id String   @db.Char(30)
+    ip_address String?  @db.VarChar(255)
+    user_agent String?  @db.VarChar(255)
+    device_id  String?  @db.VarChar(255)
+    created_at DateTime @default(now()) @db.Timestamptz()
+    updated_at DateTime @default(now()) @updatedAt @db.Timestamptz()
+
+    user          User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    refreshTokens RefreshToken[]
+
+    @@index([user_id], map: "idx_sessions_user_id")
+    @@map("auth_sessions")
+}
+
+model RefreshToken {
+    id         String   @id @db.Uuid
+    session_id String   @db.Char(30)
+    token_hash String   @db.VarChar(255)
+    is_used    Boolean  @default(false)
+    expires_at DateTime @db.Timestamptz()
+    created_at DateTime @default(now()) @db.Timestamptz()
+    updated_at DateTime @default(now()) @updatedAt @db.Timestamptz()
+
+    session AuthSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
+
+    @@index([session_id], map: "idx_refresh_tokens_session_id")
+    @@map("refresh_tokens")
+}
+
+model Account {
+    id                       String    @id @db.Char(30)
+    account_id               String    @db.VarChar(255)
+    provider_id              String    @db.VarChar(255)
+    user_id                  String    @db.Char(24)
+    access_token             String?   @db.Text
+    refresh_token            String?   @db.Text
+    id_token                 String?   @db.Text
+    access_token_expires_at  DateTime? @db.Timestamptz()
+    refresh_token_expires_at DateTime? @db.Timestamptz()
+    scope                    String?   @db.VarChar(255)
+    password                 String?   @db.VarChar(255)
+    created_at               DateTime  @default(now()) @db.Timestamptz()
+    updated_at               DateTime  @default(now()) @updatedAt @db.Timestamptz()
+
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    @@index([user_id], map: "idx_accounts_user_id")
+    @@map("accounts")
+}
+
+model UserVerification {
+    id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    identifier String   @db.VarChar(255)
+    value      String   @db.VarChar(255)
+    expires_at DateTime @db.Timestamptz()
+    created_at DateTime @default(now()) @db.Timestamptz()
+    updated_at DateTime @default(now()) @updatedAt @db.Timestamptz()
+
+    @@index([identifier], map: "idx_verifications_identifier")
+    @@map("user_verifications")
+}
+
+model AuthProviderClientId {
+    id         Int      @id @default(autoincrement())
+    provider   String   @db.VarChar(50)
+    client_id  String   @db.VarChar(255)
+    secret     String
+    active     Boolean  @default(false)
+    tags       Json     @default("[]") @db.Json
+    created_at DateTime @default(now()) @db.Timestamptz()
+    updated_at DateTime @default(now()) @updatedAt @db.Timestamptz()
+
+    @@index([provider], map: "idx_auth_provider_client_id_provider")
+    @@index([client_id], map: "idx_auth_provider_client_id_client_id")
+    @@index([active], map: "idx_auth_provider_client_id_active")
+    @@map("auth_provider_client_ids")
+}
