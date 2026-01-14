@@ -30,7 +30,6 @@ export class AuthResponse {
 
   @ApiProperty({
     description: 'User information',
-    example: UserResponse.example,
   })
   user: UserResponse;
 }

@@ -79,9 +79,8 @@ export class UserController {
    */
   @Get()
   @HttpCode(200)
-  @ApiResponse(undefined, {
+  @ApiResponse(UserResponse, {
     status: 200,
-    example: UserResponse.example,
   })
   async getUser(@Token() token: VerifiedToken) {
     const res = await this.get.execute(token);
@@ -102,9 +101,8 @@ export class UserController {
   @Put()
   @HttpCode(200)
   @Validation(UpdateBody)
-  @ApiResponse(undefined, {
+  @ApiResponse(UserResponse, {
     status: 200,
-    example: UserResponse.example,
   })
   async updateUser(
     @Body() body: z.infer<typeof UpdateBody>,
@@ -128,9 +126,8 @@ export class UserController {
   @Post('image')
   @HttpCode(200)
   @UseInterceptors(FileInterceptor('image'))
-  @ApiResponse(undefined, {
+  @ApiResponse(UserResponse, {
     status: 200,
-    example: UserResponse.example,
   })
   async updateUserImage(
     @UploadedFile(
