@@ -18,8 +18,6 @@ import { UserRepository } from './repositories/user.repository';
 import defaultConfig, { UserConfig } from './config';
 import { LoginPasswordUseCase } from './use-case/login/login-password.use-case';
 import { LoginUserUseCase } from './use-case/login/login-user.use-case';
-import { RegisterUseCase } from './use-case/register/register.use-case';
-import { RegisterPasswordUseCase } from './use-case/register/register-password.use-case';
 import { GetPublicKeyUseCase } from './use-case/token/get-public-key.use-case';
 import { RefreshTokenUseCase } from './use-case/token/refresh-token.use-case';
 import { VerifyTokenUseCase } from './use-case/token/verify-token.use-case';
@@ -29,7 +27,7 @@ import { LogoutUseCase } from './use-case/logout.use-case';
 import { AuthController } from './controller/auth.controller';
 import { JwkController } from './controller/jwk.controller';
 import { LogoutController } from './controller/logout.controller';
-import { UserController } from './controller/user.controller';
+import { MeController } from './controller/me.controller';
 import { GetUserUseCase } from './use-case/user/get.user.use-case';
 import { UpdateUserUseCase } from './use-case/user/update.user.use-case';
 import { TokenController } from './controller/token.controller';
@@ -75,8 +73,6 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       // use-cases
       LoginUserUseCase,
       LoginPasswordUseCase,
-      RegisterUseCase,
-      RegisterPasswordUseCase,
       GetPublicKeyUseCase,
       RefreshTokenUseCase,
       verifyTokenProvider,
@@ -103,8 +99,6 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       // use-cases
       LoginUserUseCase,
       LoginPasswordUseCase,
-      RegisterUseCase,
-      RegisterPasswordUseCase,
       GetPublicKeyUseCase,
       RefreshTokenUseCase,
       VerifyTokenUseCase,
@@ -118,7 +112,7 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       JwkController,
       TokenController,
       LogoutController,
-      UserController,
+      MeController,
     ],
   };
 }

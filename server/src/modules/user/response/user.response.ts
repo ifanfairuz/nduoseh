@@ -1,8 +1,8 @@
-import type { User } from '@panah/contract';
+import type { User, IMeResponse } from '@panah/contract';
 import { UserImageDisk } from '../storage/user-image.disk';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UserResponse {
+export class MeResponse implements IMeResponse {
   @ApiProperty({
     description: 'User data',
     example: {
@@ -14,13 +14,7 @@ export class UserResponse {
       image: 'https://kai.pics/avatar.png',
     },
   })
-  data: {
-    id: User['id'];
-    email: User['email'];
-    name: User['name'];
-    callname: User['callname'];
-    image: User['image'];
-  };
+  data: IMeResponse['data'];
 
   @ApiProperty({
     description: 'Modules',
@@ -32,10 +26,15 @@ export class UserResponse {
     description: 'Permission',
     example: ['user.read', 'user.write'],
   })
-  permission: string[];
+  permissions: string[];
 
-  constructor(payload: User, permission: string[] = []) {
-    this.permission = permission;
+  constructor(
+    payload: User,
+    permissions: string[] = [],
+    modules: string[] = [],
+  ) {
+    this.modules = modules;
+    this.permissions = permissions;
     this.data = {
       id: payload.id,
       email: payload.email,
@@ -45,11 +44,20 @@ export class UserResponse {
     };
   }
 
-  static async withImageUrl(payload: User, storage: UserImageDisk) {
+  static async withImageUrl(
+    payload: User,
+    storage: UserImageDisk,
+    permissions: string[] = [],
+    modules: string[] = [],
+  ) {
     const image = payload.image ? await storage.get(payload.image) : null;
-    return new UserResponse({
-      ...payload,
-      image: (await image?.getUrl()) ?? null,
-    });
+    return new MeResponse(
+      {
+        ...payload,
+        image: (await image?.getUrl()) ?? null,
+      },
+      permissions,
+      modules,
+    );
   }
 }

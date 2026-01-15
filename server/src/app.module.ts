@@ -7,6 +7,8 @@ import { EventModule } from './services/event/event.module';
 import { HealthCheckModule } from './modules/health-check/health-check.module';
 import { LocalStorageModule } from './services/storage/local-storage.module';
 import { UserImageDisk } from './modules/user/storage/user-image.disk';
+import { APP_FILTER } from '@nestjs/core';
+import { ErrorFilter } from './error.filter';
 
 @Module({
   imports: [
@@ -28,6 +30,12 @@ import { UserImageDisk } from './modules/user/storage/user-image.disk';
 
     // end of modules
     LocalStorageModule.registerServer([UserImageDisk]),
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: ErrorFilter,
+    },
   ],
 })
 export class AppModule {}

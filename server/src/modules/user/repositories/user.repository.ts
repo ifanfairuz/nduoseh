@@ -12,7 +12,7 @@ export type UserCreatePayload = Pick<User, 'name' | 'email'> &
 
 export type UserUpdatePayload = Partial<Omit<User, 'id'>>;
 
-const genUserId = createCuid2Generator('user-id', 24);
+export const genUserId = createCuid2Generator('user-id', 24);
 
 @Injectable()
 export class UserRepository extends PrismaRepository {

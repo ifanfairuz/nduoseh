@@ -85,6 +85,23 @@ export const Token = createParamDecorator((_, ctx: ExecutionContext) => {
   return '';
 });
 
+export const RefreshToken = createParamDecorator((_, ctx: ExecutionContext) => {
+  const type = ctx.getType();
+
+  if (type == 'http') {
+    const request = ctx.switchToHttp().getRequest<Request>();
+    if (request.cookies && 'refresh_token' in request.cookies) {
+      const cookie = request.cookies as Record<string, unknown>;
+      const token = cookie['refresh_token'];
+      if (typeof token === 'string') {
+        return token;
+      }
+    }
+  }
+
+  return undefined;
+});
+
 export const ApiResponse = <T>(
   type?: Constructor<T>,
   config?: ApiResponseOptions,

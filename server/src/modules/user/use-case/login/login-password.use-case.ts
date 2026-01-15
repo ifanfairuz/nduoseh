@@ -6,11 +6,14 @@ import {
   PasswordValidationException,
 } from 'src/utils/validation';
 import { HashService } from 'src/services/cipher/hash.service';
-import { ClientInfo, LoginResponse } from '@panah/contract';
+import {
+  ClientInfo,
+  ILoginWithPasswordBody,
+  LoginResponse,
+} from '@panah/contract';
 
 export interface LoginPasswordPayload {
-  email: string;
-  password: string;
+  data: ILoginWithPasswordBody;
   client: ClientInfo;
 }
 
@@ -37,7 +40,7 @@ export class LoginPasswordUseCase {
   public async execute(payload: LoginPasswordPayload): Promise<LoginResponse> {
     // get password account by email
     const account = await this.account.findPasswordByUserEmail(
-      payload.email.toLowerCase(),
+      payload.data.email.toLowerCase(),
     );
     if (!account) {
       throw new ErrorValidationException(
@@ -50,7 +53,7 @@ export class LoginPasswordUseCase {
     // check password
     const valid = await this.hashService.verify(
       account.password,
-      payload.password,
+      payload.data.password,
     );
     if (!valid) {
       throw new PasswordValidationException(

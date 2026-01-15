@@ -43,7 +43,10 @@ async function bootstrap() {
   });
   const logger = app.get(Logger);
   app.useLogger(logger);
-  app.enableCors();
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN?.split(',') ?? true,
+    credentials: true,
+  });
 
   if (process.env.SWAGGER_DISABLE !== 'true') {
     setupApiDocs(app);

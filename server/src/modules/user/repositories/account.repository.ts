@@ -13,7 +13,7 @@ export type AccountCreateWithPasswordPayload = Pick<
 
 export type AccountCreateWithSSOPayload = Omit<Account, 'id' | 'password'>;
 
-const genAccountId = createCuid2Generator('account-id', 30);
+export const genAccountId = createCuid2Generator('account-id', 30);
 
 @Injectable()
 export class AccountRepository extends PrismaRepository {
