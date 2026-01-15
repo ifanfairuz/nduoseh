@@ -17,17 +17,29 @@ import {
 } from "@/components/ui/sidebar";
 import { useBranchStore } from "@/stores/branch.store";
 import { nextTick, onBeforeMount, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, type RouteLocationNormalizedGeneric } from "vue-router";
 
 interface Breadcrumb {
   name: string;
   path?: string;
 }
 
+const getBreadcrumbs = (to: RouteLocationNormalizedGeneric) => {
+  return to.matched.reduce((list, item) => {
+    if (item.meta.breadcrumbs) {
+      return [...list, ...(item.meta.breadcrumbs as Breadcrumb[])];
+    }
+
+    return list;
+  }, [] as Breadcrumb[]);
+};
+
 const router = useRouter();
-const breadcrumbs = ref<Breadcrumb[]>([]);
+const breadcrumbs = ref<Breadcrumb[]>(
+  getBreadcrumbs(router.currentRoute.value)
+);
 router.afterEach((to) => {
-  breadcrumbs.value = (to.meta.breadcrumbs as Breadcrumb[]) ?? [];
+  breadcrumbs.value = getBreadcrumbs(to);
 });
 
 const branchStore = useBranchStore();

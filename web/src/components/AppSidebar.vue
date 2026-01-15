@@ -29,11 +29,6 @@ const props = withDefaults(defineProps<SidebarProps>(), {
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Playground",
@@ -151,7 +146,7 @@ const data = {
       <NavProjects :projects="data.projects" />
     </SidebarContent>
     <SidebarFooter>
-      <NavUser :user="data.user" />
+      <NavUser />
     </SidebarFooter>
     <SidebarRail />
   </Sidebar>

@@ -1,17 +1,10 @@
 <script setup lang="ts">
-import { nextTick, ref } from "vue";
+import { computed } from "vue";
 import { useAuthStore } from "./stores/auth.store";
-import { onBeforeMount } from "vue";
 import LoaderScreen from "./components/LoaderScreen.vue";
 
 const authStore = useAuthStore();
-const loading = ref(true);
-onBeforeMount(async () => {
-  await authStore.init();
-  nextTick(() => {
-    loading.value = false;
-  });
-});
+const loading = computed(() => !authStore.inited);
 </script>
 
 <template>

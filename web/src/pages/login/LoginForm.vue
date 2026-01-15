@@ -28,8 +28,6 @@ import { WithMessageException } from "@/api/exceptions/WithMessageException";
 const props = defineProps<{
   class?: HTMLAttributes["class"];
 }>();
-
-const store = useAuthStore();
 const schema = toTypedSchema(
   z.object({
     email: z.string().email({ message: "Email is invalid" }),
@@ -40,6 +38,7 @@ const form = useForm({
   validationSchema: schema,
 });
 
+const store = useAuthStore();
 const loading = ref(false);
 const onSubmit = form.handleSubmit(async (values) => {
   try {
@@ -78,6 +77,7 @@ const onSubmit = form.handleSubmit(async (values) => {
                 type="email"
                 placeholder="me@example.com"
                 required
+                autocomplete="username"
                 v-bind="componentField"
               />
             </FormControl>
@@ -93,6 +93,7 @@ const onSubmit = form.handleSubmit(async (values) => {
                 type="password"
                 placeholder="••••••••"
                 required
+                autocomplete="current-password"
                 v-bind="componentField"
               />
             </FormControl>

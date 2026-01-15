@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-vue-next";
+import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-vue-next";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -24,16 +17,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-
-const props = defineProps<{
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}>();
+import { useAuthStore } from "@/stores/auth.store";
+import { storeToRefs } from "pinia";
 
 const { isMobile } = useSidebar();
+const store = useAuthStore();
+const { userData, acronim } = storeToRefs(store);
 </script>
 
 <template>
@@ -46,12 +35,14 @@ const { isMobile } = useSidebar();
             class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
             <Avatar class="h-8 w-8 rounded-lg">
-              <AvatarImage :src="user.avatar" :alt="user.name" />
-              <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
+              <AvatarImage :src="userData!.image ?? ''" :alt="userData!.name" />
+              <AvatarFallback class="rounded-lg">
+                {{ acronim }}
+              </AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
-              <span class="truncate font-medium">{{ user.name }}</span>
-              <span class="truncate text-xs">{{ user.email }}</span>
+              <span class="truncate font-medium">{{ userData!.name }}</span>
+              <span class="truncate text-xs">{{ userData!.email }}</span>
             </div>
             <ChevronsUpDown class="ml-auto size-4" />
           </SidebarMenuButton>
@@ -65,22 +56,20 @@ const { isMobile } = useSidebar();
           <DropdownMenuLabel class="p-0 font-normal">
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
               <Avatar class="h-8 w-8 rounded-lg">
-                <AvatarImage :src="user.avatar" :alt="user.name" />
-                <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
+                <AvatarImage
+                  :src="userData!.image ?? ''"
+                  :alt="userData!.name"
+                />
+                <AvatarFallback class="rounded-lg">
+                  {{ acronim }}
+                </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
-                <span class="truncate font-semibold">{{ user.name }}</span>
-                <span class="truncate text-xs">{{ user.email }}</span>
+                <span class="truncate font-semibold">{{ userData!.name }}</span>
+                <span class="truncate text-xs">{{ userData!.email }}</span>
               </div>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Sparkles />
-              Upgrade to Pro
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
@@ -88,18 +77,16 @@ const { isMobile } = useSidebar();
               Account
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <CreditCard />
-              Billing
-            </DropdownMenuItem>
-            <DropdownMenuItem>
               <Bell />
               Notifications
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <LogOut />
-            Log out
+          <DropdownMenuItem as-child>
+            <button type="button" @click="store.logout()" class="w-full">
+              <LogOut />
+              Log out
+            </button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -26,7 +26,7 @@ export class LogoutController {
     status: 204,
     description: 'no-content',
   })
-  async getUser(@Res() res: Response, @Token() token?: VerifiedToken) {
+  async logout(@Res() res: Response, @Token() token?: VerifiedToken) {
     RefreshTokenResponse.clearCookie(res);
     res.status(204).send();
 

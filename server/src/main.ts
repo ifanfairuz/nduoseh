@@ -1,15 +1,15 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
-import { Logger } from 'nestjs-pino';
-import { AppModule } from './app.module';
+import { INestApplication } from '@nestjs/common';
 import {
   DocumentBuilder,
   SwaggerCustomOptions,
   SwaggerModule,
 } from '@nestjs/swagger';
-
+import { Logger } from 'nestjs-pino';
+import cookieParser from 'cookie-parser';
 import { version } from '../package.json';
-import { INestApplication } from '@nestjs/common';
+import { AppModule } from './app.module';
 
 /**
  * Setup the API docs
@@ -43,6 +43,7 @@ async function bootstrap() {
   });
   const logger = app.get(Logger);
   app.useLogger(logger);
+  app.use(cookieParser());
   app.enableCors({
     origin: process.env.CORS_ORIGIN?.split(',') ?? true,
     credentials: true,

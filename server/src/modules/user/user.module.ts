@@ -1,8 +1,10 @@
 import {
   DynamicModule,
   Global,
+  MiddlewareConsumer,
   Module,
   ModuleMetadata,
+  NestModule,
   Provider,
 } from '@nestjs/common';
 import { CipherModule } from 'src/services/cipher/cipher.module';
@@ -34,6 +36,7 @@ import { TokenController } from './controller/token.controller';
 import { UserImageDisk } from './storage/user-image.disk';
 import { LocalStorageService } from 'src/services/storage/local-storage.service';
 import { UpdateImageUserUseCase } from './use-case/user/update-image.user.use-case';
+import { AuthMiddleware } from './auth.middleware';
 
 function genMetadata(config: UserConfig): ModuleMetadata {
   const verifyTokenProvider: Provider = {
@@ -119,14 +122,30 @@ function genMetadata(config: UserConfig): ModuleMetadata {
 
 @Global()
 @Module(genMetadata(defaultConfig))
-export class UserModule {
-  static withOptions(options: UserConfig): DynamicModule {
-    const metadata = genMetadata(options);
+export class UserModule implements NestModule {
+  static withOptions(options: {
+    auth?: Partial<UserConfig['auth']>;
+  }): DynamicModule {
+    const metadata = genMetadata({
+      ...defaultConfig,
+      ...options,
+      auth: {
+        ...defaultConfig.auth,
+        ...options.auth,
+      },
+    });
 
     return {
       global: true,
       module: UserModule,
       ...metadata,
     };
+  }
+
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .exclude('/api/auth/token/refresh', '/api/auth/:provider/login')
+      .forRoutes('/api/*all');
   }
 }

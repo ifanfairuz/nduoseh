@@ -42,6 +42,7 @@ export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null as IMeResponse | null,
     token: loadFromStorage(),
+    inited: false,
   }),
 
   getters: {
@@ -51,10 +52,31 @@ export const useAuthStore = defineStore("auth", {
     isAuthed: (state) => {
       return !!state.user;
     },
+    userData: (state) => {
+      return state.user?.data;
+    },
+    acronim: (state) => {
+      const name = state.user?.data.callname ?? state.user?.data.name;
+      if (!name) {
+        return "";
+      }
+
+      const names = name.trim().split(/\s+/);
+      if (names.length > 1) {
+        return names
+          .slice(0, 2)
+          .map((a) => a.charAt(0))
+          .join("");
+      }
+
+      return names[0]?.substring(0, 2) ?? "";
+    },
   },
 
   actions: {
     async init() {
+      if (this.inited) return;
+
       if (this.token) {
         try {
           this.user = await api.getMe();
@@ -62,6 +84,8 @@ export const useAuthStore = defineStore("auth", {
           await this.logout();
         }
       }
+
+      this.inited = true;
     },
     setToken(token: TokenResponse | null) {
       let value = null;
@@ -90,10 +114,12 @@ export const useAuthStore = defineStore("auth", {
     async logout() {
       try {
         await auth.logoutFromServer();
-      } finally {
+      } catch {
         // ignore server logout error
+      } finally {
         saveToStorage(null);
         this.$reset();
+        this.inited = true;
       }
     },
   },

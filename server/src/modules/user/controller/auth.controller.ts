@@ -15,7 +15,7 @@ import { UserImageDisk } from '../storage/user-image.disk';
 
 const LoginBody = z.object({
   email: z.email('Invalid email'),
-  password: z.string().min(8, 'Invalid password'),
+  password: z.string().min(1, 'Invalid password'),
 });
 
 @ApiController('auth/password', { tag: 'Auth' })
@@ -51,7 +51,7 @@ export class AuthController {
       },
     });
 
-    RefreshTokenResponse.attachCookie(res, payload.access_token);
+    RefreshTokenResponse.attachCookie(res, payload.refresh_token);
     return await AuthResponse.withImageUrl(payload, this.disk);
   }
 }

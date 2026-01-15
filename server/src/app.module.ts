@@ -26,7 +26,7 @@ import { ErrorFilter } from './error.filter';
     RedisModule,
     EventModule,
     HealthCheckModule,
-    UserModule,
+    UserModule.withOptions({}),
 
     // end of modules
     LocalStorageModule.registerServer([UserImageDisk]),

@@ -73,6 +73,7 @@ export class TokenController {
     @Res({ passthrough: true }) res: Response,
     @RefreshToken() refresh_token?: string,
   ) {
+    console.log(refresh_token);
     if (!refresh_token) {
       throw new UnauthorizedException();
     }
