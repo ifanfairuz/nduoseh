@@ -11,15 +11,12 @@ import { Disk } from './contract/disk';
 export class LocalStorageModule {
   static registerServer(diskTokens: InjectionToken[]): DynamicModule {
     return ServeStaticModule.forRootAsync({
-      useFactory: (...disk: unknown[]) => {
-        return disk
-          .filter((disk) => disk instanceof Disk)
+      useFactory: (...disks: unknown[]) => {
+        return disks
+          .filter((disk): disk is Disk => disk instanceof Disk)
           .map((disk) => disk.getServeStaticOptions());
       },
-      inject: diskTokens.map((disk) => ({
-        token: disk,
-        optional: true,
-      })),
+      inject: diskTokens,
     });
   }
 }

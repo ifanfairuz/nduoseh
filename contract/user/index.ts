@@ -1,4 +1,4 @@
-import { User } from "../models";
+import type { User } from "../models";
 
 export interface IMeResponse {
   data: {
@@ -12,11 +12,12 @@ export interface IMeResponse {
   modules: string[];
 }
 
-export interface IUpdateUserBody {
+export interface IUpdateMeBody {
+  email: string;
   name: string;
   callname: string;
 }
 
 export interface IUpdateUserImageBody {
-  image: string | File | Blob | Buffer;
+  image: string | File | Blob;
 }

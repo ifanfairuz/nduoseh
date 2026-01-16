@@ -4,10 +4,12 @@ import "./style.css";
 import App from "./App.vue";
 import { router } from "./router";
 import { useAuthStore } from "./stores/auth.store";
+import DashboardContent from "./components/DashboardContent.vue";
 
 const app = createApp(App);
 app.use(createPinia());
 app.use(router);
+app.component("dashboard-content", DashboardContent);
 
 // listen auth
 const auth = useAuthStore();

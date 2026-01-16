@@ -72,10 +72,12 @@ const { userData, acronim } = storeToRefs(store);
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <BadgeCheck />
-              Account
-            </DropdownMenuItem>
+            <router-link :to="{ name: 'profile.edit' }">
+              <DropdownMenuItem>
+                <BadgeCheck />
+                Account
+              </DropdownMenuItem>
+            </router-link>
             <DropdownMenuItem>
               <Bell />
               Notifications

@@ -19,9 +19,13 @@ export class AuthResponse implements IAuthResponse {
     this.user = new MeResponse(payload.user);
   }
 
-  static async withImageUrl(payload: LoginResponse, storage: UserImageDisk) {
+  static async withImageUrl(
+    payload: LoginResponse,
+    storage: UserImageDisk,
+    domain?: string,
+  ) {
     const response = new AuthResponse(payload);
-    response.user = await MeResponse.withImageUrl(payload.user, storage);
+    response.user = await MeResponse.withImageUrl(payload.user, storage, domain);
     return response;
   }
 

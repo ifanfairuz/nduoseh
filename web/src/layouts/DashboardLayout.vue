@@ -17,11 +17,16 @@ import {
 } from "@/components/ui/sidebar";
 import { useBranchStore } from "@/stores/branch.store";
 import { nextTick, onBeforeMount, ref } from "vue";
-import { useRouter, type RouteLocationNormalizedGeneric } from "vue-router";
+import {
+  useRouter,
+  type RouteLocationAsPathGeneric,
+  type RouteLocationAsRelativeGeneric,
+  type RouteLocationNormalizedGeneric,
+} from "vue-router";
 
 interface Breadcrumb {
   name: string;
-  path?: string;
+  target?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
 }
 
 const getBreadcrumbs = (to: RouteLocationNormalizedGeneric) => {
@@ -76,10 +81,12 @@ onBeforeMount(async () => {
               <template v-for="(item, index) in breadcrumbs" :key="index">
                 <BreadcrumbItem class="hidden md:block">
                   <BreadcrumbLink
-                    v-if="index < breadcrumbs.length - 1 && item.path"
-                    href="#"
+                    v-if="index < breadcrumbs.length - 1 && item.target"
+                    as-child
                   >
-                    {{ item.name }}
+                    <router-link :to="item.target">
+                      {{ item.name }}
+                    </router-link>
                   </BreadcrumbLink>
                   <BreadcrumbPage v-else>{{ item.name }}</BreadcrumbPage>
                 </BreadcrumbItem>
@@ -92,7 +99,12 @@ onBeforeMount(async () => {
           </Breadcrumb>
         </div>
       </header>
-      <router-view />
+      <Suspense>
+        <router-view />
+        <template #fallback>
+          <loader-screen />
+        </template>
+      </Suspense>
     </SidebarInset>
   </SidebarProvider>
 </template>

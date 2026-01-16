@@ -5,6 +5,7 @@ import {
   ApiResponse,
   DeviceId,
   UserAgent,
+  Domain,
 } from 'src/utils/http';
 import { Validation } from 'src/utils/validation';
 import z from 'zod';
@@ -40,6 +41,7 @@ export class AuthController {
     @Ip() ip_address: string,
     @UserAgent() user_agent: string,
     @DeviceId() device_id: string,
+    @Domain() domain: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     const payload = await this.loginUseCase.execute({
@@ -52,6 +54,6 @@ export class AuthController {
     });
 
     RefreshTokenResponse.attachCookie(res, payload.refresh_token);
-    return await AuthResponse.withImageUrl(payload, this.disk);
+    return await AuthResponse.withImageUrl(payload, this.disk, domain);
   }
 }

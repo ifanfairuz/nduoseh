@@ -10,8 +10,8 @@ export class UpdateImageUserUseCase {
     @Inject() private readonly disk: UserImageDisk,
   ) {}
 
-  async execute(access_token: VerifiedToken, image: Buffer) {
-    const file = await this.disk.save(image);
+  async execute(access_token: VerifiedToken, image: Buffer, mime?: string) {
+    const file = await this.disk.save(image, { mime });
 
     try {
       return await this.user.update(access_token.user_id, {

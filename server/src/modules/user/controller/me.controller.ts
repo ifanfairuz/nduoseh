@@ -15,8 +15,8 @@ import {
 
 import { IFile } from '@nestjs/common/pipes/file/interfaces';
 import { MeResponse } from '../response/user.response';
-import { ApiController, ApiResponse, Token } from 'src/utils/http';
-import type { IUpdateUserBody, VerifiedToken } from '@panah/contract';
+import { ApiController, ApiResponse, Token, Domain } from 'src/utils/http';
+import type { IUpdateMeBody, VerifiedToken } from '@panah/contract';
 import { Validation } from 'src/utils/validation';
 import { GetUserUseCase } from '../use-case/user/get.user.use-case';
 import { UpdateUserUseCase } from '../use-case/user/update.user.use-case';
@@ -55,6 +55,7 @@ export class MeImageValidator extends FileValidator {
 }
 
 const UpdateBody = z.object({
+  email: z.email(),
   name: z.string("Name can't be empty").min(1, "Name can't be empty").max(255),
   callname: z
     .string("Callname can't be empty")
@@ -82,13 +83,13 @@ export class MeController {
   @ApiResponse(MeResponse, {
     status: 200,
   })
-  async getUser(@Token() token: VerifiedToken) {
+  async getUser(@Token() token: VerifiedToken, @Domain() domain: string) {
     const res = await this.get.execute(token);
     if (!res) {
       throw new UnauthorizedException();
     }
 
-    return await MeResponse.withImageUrl(res, this.disk);
+    return await MeResponse.withImageUrl(res, this.disk, domain);
   }
 
   /**
@@ -105,15 +106,16 @@ export class MeController {
     status: 200,
   })
   async updateUser(
-    @Body() body: IUpdateUserBody,
+    @Body() body: IUpdateMeBody,
     @Token() token: VerifiedToken,
+    @Domain() domain: string,
   ) {
     const res = await this.update.execute(token, body);
     if (!res) {
       throw new UnauthorizedException();
     }
 
-    return await MeResponse.withImageUrl(res, this.disk);
+    return await MeResponse.withImageUrl(res, this.disk, domain);
   }
 
   /**
@@ -137,12 +139,17 @@ export class MeController {
     )
     image: Express.Multer.File,
     @Token() token: VerifiedToken,
+    @Domain() domain: string,
   ) {
-    const res = await this.updateImage.execute(token, image.buffer);
+    const res = await this.updateImage.execute(
+      token,
+      image.buffer,
+      image.mimetype,
+    );
     if (!res) {
       throw new UnauthorizedException();
     }
 
-    return await MeResponse.withImageUrl(res, this.disk);
+    return await MeResponse.withImageUrl(res, this.disk, domain);
   }
 }

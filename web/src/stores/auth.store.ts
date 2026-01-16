@@ -1,6 +1,10 @@
 import * as auth from "@/api/auth.api";
 import * as api from "@/api/me.api";
-import type { IMeResponse, TokenResponse } from "@panah/contract";
+import type {
+  IMeResponse,
+  IUpdateMeBody,
+  TokenResponse,
+} from "@panah/contract";
 import { fromUnixTime, getUnixTime, isBefore } from "date-fns";
 import { defineStore } from "pinia";
 
@@ -120,6 +124,22 @@ export const useAuthStore = defineStore("auth", {
         saveToStorage(null);
         this.$reset();
         this.inited = true;
+      }
+    },
+    async update(data: IUpdateMeBody) {
+      try {
+        const res = await api.updateMe(data);
+        this.user = res;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async updateImage(image: File) {
+      try {
+        const res = await api.updateMeImage(image);
+        this.user = res;
+      } catch (error) {
+        throw error;
       }
     },
   },

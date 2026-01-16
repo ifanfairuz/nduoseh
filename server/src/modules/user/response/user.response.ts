@@ -47,6 +47,7 @@ export class MeResponse implements IMeResponse {
   static async withImageUrl(
     payload: User,
     storage: UserImageDisk,
+    domain?: string,
     permissions: string[] = [],
     modules: string[] = [],
   ) {
@@ -54,7 +55,7 @@ export class MeResponse implements IMeResponse {
     return new MeResponse(
       {
         ...payload,
-        image: (await image?.getUrl()) ?? null,
+        image: (await image?.getUrl(domain)) ?? null,
       },
       permissions,
       modules,

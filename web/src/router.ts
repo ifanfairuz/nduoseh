@@ -4,23 +4,32 @@ import {
   type RouteRecordRaw,
 } from "vue-router";
 
-import DashboardLayout from "./layouts/DashboardLayout.vue";
-import Dashboard from "./pages/Dashboard.vue";
-import Login from "./pages/login/Login.vue";
 import Error from "./pages/Error.vue";
 import { useAuthStore } from "./stores/auth.store";
 
 const routes: RouteRecordRaw[] = [
-  { path: "/login", name: "login", component: Login, meta: { guest: true } },
+  {
+    path: "/login",
+    name: "login",
+    component: () => import("./pages/login/Login.vue"),
+    meta: { guest: true },
+  },
   {
     path: "/",
-    component: DashboardLayout,
-    meta: { authed: true, breadcrumbs: [{ name: "Dashboard", path: "/" }] },
+    component: () => import("./layouts/DashboardLayout.vue"),
+    meta: { authed: true },
     children: [
       {
         path: "",
         name: "dashboard",
-        component: Dashboard,
+        component: () => import("./pages/dashboard/Dashboard.vue"),
+        meta: { breadcrumbs: [{ name: "Dashboard", target: "/" }] },
+      },
+      {
+        path: "/profile/edit",
+        name: "profile.edit",
+        component: () => import("./pages/profile/ProfileEdit.vue"),
+        meta: { breadcrumbs: [{ name: "Profile" }, { name: "Edit" }] },
       },
     ],
   },

@@ -69,7 +69,22 @@ export class XFile {
   async getUrl(baseUrl?: string) {
     if (this._url) {
       const _baseUrl = baseUrl ?? process.env.BASE_URL ?? '';
-      return Promise.resolve(`${_baseUrl}${this._url}`);
+
+      // If no base URL, return the relative URL
+      if (!_baseUrl) {
+        return Promise.resolve(this._url);
+      }
+
+      // Normalize base URL - remove trailing slash
+      const normalizedBase = _baseUrl.replace(/\/+$/, '');
+
+      // Normalize relative URL - ensure it starts with /
+      const normalizedUrl = this._url.startsWith('/')
+        ? this._url
+        : `/${this._url}`;
+
+      // Join with single slash
+      return Promise.resolve(`${normalizedBase}${normalizedUrl}`);
     }
 
     return Promise.reject(

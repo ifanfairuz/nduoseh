@@ -10,6 +10,7 @@ import type {
   SaveOptions,
   StorageService,
 } from './contract/storage.service';
+import { getExtensionFromMime } from 'src/utils/file';
 
 function parseToAbsolute(path: string) {
   if (isAbsolute(path)) {
@@ -63,7 +64,9 @@ export class LocalStorageService
     target: string,
     options?: SaveOptions,
   ): Promise<XFile> {
-    const name = options?.name ?? randomUUID();
+    const baseName = options?.name ?? randomUUID();
+    const extension = getExtensionFromMime(options?.mime);
+    const name = baseName + extension;
     const path = join(target, name);
 
     await writeFile(join(this._base_path, path), buffer, { flag: 'w+' });

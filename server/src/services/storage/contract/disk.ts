@@ -2,6 +2,7 @@ import { join } from 'path';
 import { SaveOptions, StorageService } from './storage.service';
 import { XFile } from './xfile';
 import { ServeStaticModuleOptions } from '@nestjs/serve-static';
+import { LocalStorageService } from '../local-storage.service';
 
 export abstract class Disk {
   constructor(protected readonly driver: StorageService) {}
@@ -43,5 +44,11 @@ export abstract class Disk {
 
   getServeStaticOptions(): ServeStaticModuleOptions {
     throw new Error('Method not implemented or not exposed disk');
+  }
+
+  async initiateDiskFolder() {
+    if (this.driver instanceof LocalStorageService) {
+      await this.driver.createDir(this.name);
+    }
   }
 }
