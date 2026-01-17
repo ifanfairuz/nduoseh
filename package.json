@@ -19,7 +19,6 @@
   "license": "ISC",
   "author": "ifanfairuz",
   "workspaces": [
-    "core",
     "contract",
     "server",
     "web"
