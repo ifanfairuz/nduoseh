@@ -22,7 +22,7 @@ function saveToStorage(value: Token | null) {
       JSON.stringify({
         token: value.token,
         expires_at: getUnixTime(value.expires_at),
-      })
+      }),
     );
   } else {
     window.localStorage.removeItem(STORAGE_KEY);
@@ -70,10 +70,11 @@ export const useAuthStore = defineStore("auth", {
         return names
           .slice(0, 2)
           .map((a) => a.charAt(0))
-          .join("");
+          .join("")
+          .toUpperCase();
       }
 
-      return names[0]?.substring(0, 2) ?? "";
+      return names[0]?.substring(0, 2).toUpperCase() ?? "";
     },
   },
 
