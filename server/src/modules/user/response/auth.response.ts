@@ -16,7 +16,11 @@ import { fromUnixTime } from 'date-fns';
 export class AuthResponse implements IAuthResponse {
   constructor(payload: LoginResponse) {
     this.access_token = payload.access_token;
-    this.user = new MeResponse(payload.user);
+    this.user = new MeResponse(
+      payload.user,
+      payload.permissions,
+      payload.modules,
+    );
   }
 
   static async withImageUrl(
@@ -25,7 +29,13 @@ export class AuthResponse implements IAuthResponse {
     domain?: string,
   ) {
     const response = new AuthResponse(payload);
-    response.user = await MeResponse.withImageUrl(payload.user, storage, domain);
+    response.user = await MeResponse.withImageUrl(
+      payload.user,
+      storage,
+      domain,
+      payload.permissions,
+      payload.modules,
+    );
     return response;
   }
 

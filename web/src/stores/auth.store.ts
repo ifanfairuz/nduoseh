@@ -1,5 +1,6 @@
 import * as auth from "@/api/auth.api";
 import * as api from "@/api/me.api";
+import { wildcardToRegex } from "@/lib/utils";
 import type {
   IMeResponse,
   IUpdateMeBody,
@@ -76,6 +77,9 @@ export const useAuthStore = defineStore("auth", {
 
       return names[0]?.substring(0, 2).toUpperCase() ?? "";
     },
+    permissions: (state) => {
+      return state.user?.permissions;
+    },
   },
 
   actions: {
@@ -142,6 +146,28 @@ export const useAuthStore = defineStore("auth", {
       } catch (error) {
         throw error;
       }
+    },
+    hasPermission(perm: string | string[]) {
+      if (!this.permissions) {
+        return false;
+      }
+
+      if (typeof perm == "string") {
+        return (
+          this.permissions.findIndex((p: string) =>
+            p.match(wildcardToRegex(perm as string)),
+          ) > -1
+        );
+      }
+
+      return (
+        perm.findIndex(
+          (search) =>
+            this.permissions!.findIndex((p: string) =>
+              p.match(wildcardToRegex(search as string)),
+            ) > -1,
+        ) > -1
+      );
     },
   },
 });

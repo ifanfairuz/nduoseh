@@ -15,6 +15,8 @@ export interface TokenResponse {
 export interface LoginResponse {
   access_token: TokenResponse;
   refresh_token: TokenResponse;
+  permissions: string[];
+  modules: string[];
   user: User;
 }
 

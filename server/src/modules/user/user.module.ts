@@ -8,15 +8,19 @@ import {
   Provider,
 } from '@nestjs/common';
 import { CipherModule } from 'src/services/cipher/cipher.module';
+import { RedisModule } from 'src/services/redis/redis.module';
 import { JwtService } from './services/jwt.service';
 import { RefreshTokenService } from './services/refresh-token.service';
 import { AccessTokenService } from './services/access-token.service';
+import { PermissionCacheService } from './services/permission-cache.service';
 import { AccessTokenRepository } from './repositories/access-token.repository';
 import { AccountRepository } from './repositories/account.repository';
 import { AuthProviderClientIdRepository } from './repositories/auth-provider-client-id.repository';
 import { AuthSessionRepository } from './repositories/auth-session.repository';
 import { RefreshTokenRepository } from './repositories/refresh-token.repository';
 import { UserRepository } from './repositories/user.repository';
+import { RoleRepository } from './repositories/role.repository';
+import { UserRoleRepository } from './repositories/user-role.repository';
 import { UserConfig } from './config';
 import { LoginPasswordUseCase } from './use-case/login/login-password.use-case';
 import { LoginUserUseCase } from './use-case/login/login-user.use-case';
@@ -43,7 +47,22 @@ import { GetUserByIdUseCase } from './use-case/user/get-user-by-id.use-case';
 import { CreateUserUseCase } from './use-case/user/create-user.use-case';
 import { UpdateUserUseCase } from './use-case/user/update-user.use-case';
 import { DeleteUserUseCase } from './use-case/user/delete-user.use-case';
+import { CreateRoleUseCase } from './use-case/role/create-role.use-case';
+import { UpdateRoleUseCase } from './use-case/role/update-role.use-case';
+import { DeleteRoleUseCase } from './use-case/role/delete-role.use-case';
+import { GetRoleByIdUseCase } from './use-case/role/get-role-by-id.use-case';
+import { ListRolesUseCase } from './use-case/role/list-roles.use-case';
+import { ValidatePermissionsUseCase } from './use-case/role/validate-permissions.use-case';
+import { AssignRoleUseCase } from './use-case/user-role/assign-role.use-case';
+import { RemoveRoleUseCase } from './use-case/user-role/remove-role.use-case';
+import { GetUserRolesUseCase } from './use-case/user-role/get-user-roles.use-case';
+import { GetUserPermissionsUseCase } from './use-case/user-role/get-user-permissions.use-case';
 import { UsersController } from './controller/users.controller';
+import { RolesController } from './controller/roles.controller';
+import { UserRolesController } from './controller/user-roles.controller';
+import { PermissionsGuard } from './guards/permissions.guard';
+import { RolesGuard } from './guards/roles.guard';
+import { GetUserInfoUseCase } from './use-case/user/get-user-info.user-case';
 
 function genMetadata(config: UserConfig): ModuleMetadata {
   const verifyTokenProvider: Provider = {
@@ -54,7 +73,7 @@ function genMetadata(config: UserConfig): ModuleMetadata {
   };
 
   return {
-    imports: [CipherModule],
+    imports: [CipherModule, RedisModule],
     providers: [
       // config
       {
@@ -71,6 +90,7 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       AccessTokenService,
       RefreshTokenService,
       UserImageDisk,
+      PermissionCacheService,
 
       // repositories
       AccessTokenRepository,
@@ -79,6 +99,8 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       AuthSessionRepository,
       RefreshTokenRepository,
       UserRepository,
+      RoleRepository,
+      UserRoleRepository,
 
       // use-cases
       LoginUserUseCase,
@@ -95,6 +117,25 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       CreateUserUseCase,
       UpdateUserUseCase,
       DeleteUserUseCase,
+      GetUserInfoUseCase,
+
+      // role use-cases
+      CreateRoleUseCase,
+      UpdateRoleUseCase,
+      DeleteRoleUseCase,
+      GetRoleByIdUseCase,
+      ListRolesUseCase,
+      ValidatePermissionsUseCase,
+
+      // user-role use-cases
+      AssignRoleUseCase,
+      RemoveRoleUseCase,
+      GetUserRolesUseCase,
+      GetUserPermissionsUseCase,
+
+      // guards
+      PermissionsGuard,
+      RolesGuard,
     ],
     exports: [
       // exported modules
@@ -121,6 +162,7 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       GetMeUseCase,
       UpdateMeUseCase,
       UpdateImageMeUseCase,
+      GetUserInfoUseCase,
     ],
     controllers: [
       AuthController,
@@ -129,6 +171,8 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       LogoutController,
       MeController,
       UsersController,
+      RolesController,
+      UserRolesController,
     ],
   };
 }
@@ -141,6 +185,13 @@ export class UserModule implements NestModule {
     'users.create',
     'users.update',
     'users.delete',
+    'users.roles.list',
+    'users.roles.assign',
+    'users.roles.remove',
+    'roles.list',
+    'roles.create',
+    'roles.update',
+    'roles.delete',
   ];
 
   static defaultConfig: UserConfig = {

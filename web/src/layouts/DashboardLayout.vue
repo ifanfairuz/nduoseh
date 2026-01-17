@@ -41,7 +41,7 @@ const getBreadcrumbs = (to: RouteLocationNormalizedGeneric) => {
 
 const router = useRouter();
 const breadcrumbs = ref<Breadcrumb[]>(
-  getBreadcrumbs(router.currentRoute.value)
+  getBreadcrumbs(router.currentRoute.value),
 );
 router.afterEach((to) => {
   breadcrumbs.value = getBreadcrumbs(to);
@@ -99,12 +99,7 @@ onBeforeMount(async () => {
           </Breadcrumb>
         </div>
       </header>
-      <Suspense>
-        <router-view />
-        <template #fallback>
-          <loader-screen />
-        </template>
-      </Suspense>
+      <router-view />
     </SidebarInset>
   </SidebarProvider>
 </template>

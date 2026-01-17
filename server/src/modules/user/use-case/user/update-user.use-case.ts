@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../../repositories/user.repository';
 
 interface UpdateUserInput {
@@ -10,7 +10,7 @@ interface UpdateUserInput {
 
 @Injectable()
 export class UpdateUserUseCase {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(@Inject() private readonly userRepository: UserRepository) {}
 
   async execute(input: UpdateUserInput) {
     // Check if user exists

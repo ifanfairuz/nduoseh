@@ -10,6 +10,7 @@ import { OnUserLogin } from '../../event/OnUserLogin';
 import { PrismaAtomicService } from 'src/services/prisma/atomic.service';
 import { RefreshTokenService } from '../../services/refresh-token.service';
 import { AccessTokenService } from '../../services/access-token.service';
+import { GetUserInfoUseCase } from '../user/get-user-info.user-case';
 
 @Injectable()
 export class LoginUserUseCase {
@@ -28,6 +29,8 @@ export class LoginUserUseCase {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     @Inject()
     private readonly accessTokenRepository: AccessTokenRepository,
+    @Inject()
+    private readonly userInfo: GetUserInfoUseCase,
   ) {}
 
   /**
@@ -100,6 +103,7 @@ export class LoginUserUseCase {
 
     await this.dispatchHooks(result.session, user);
 
+    const info = await this.userInfo.getInfo(user.id);
     return {
       access_token: {
         token: result.access_token.token,
@@ -110,6 +114,7 @@ export class LoginUserUseCase {
         expires_at: getUnixTime(result.refresh_token.expires_at),
       },
       user,
+      ...info,
     };
   }
 }

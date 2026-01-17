@@ -6,6 +6,7 @@ import {
 
 import Error from "./pages/Error.vue";
 import { useAuthStore } from "./stores/auth.store";
+import { useProgressBar } from "./composables/useProgressBar";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -24,6 +25,15 @@ const routes: RouteRecordRaw[] = [
         name: "dashboard",
         component: () => import("./pages/dashboard/Dashboard.vue"),
         meta: { breadcrumbs: [{ name: "Dashboard", target: "/" }] },
+      },
+      {
+        path: "/users",
+        name: "users.list",
+        component: () => import("./modules/user/pages/UserList.vue"),
+        meta: {
+          permissions: ["users.list"],
+          breadcrumbs: [{ name: "Users", target: { name: "users.list" } }],
+        },
       },
       {
         path: "/profile/edit",
@@ -54,7 +64,11 @@ export const router = createRouter({
   routes,
 });
 
+const progressBar = useProgressBar();
+
 router.beforeEach(async (to) => {
+  progressBar.start();
+
   const store = useAuthStore();
   await store.init();
 
@@ -65,4 +79,19 @@ router.beforeEach(async (to) => {
   if (to.meta.authed && !store.isAuthed) {
     return { name: "login" };
   }
+
+  if (
+    to.meta.permissions &&
+    !store.hasPermission(to.meta.permissions as string | string[])
+  ) {
+    return { name: "error", params: { code: 403 } };
+  }
+});
+
+router.afterEach(() => {
+  progressBar.finish();
+});
+
+router.onError(() => {
+  progressBar.fail();
 });

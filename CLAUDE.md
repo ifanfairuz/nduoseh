@@ -109,6 +109,29 @@ npx prisma studio
 - Auth middleware (`AuthMiddleware`) applied globally to `/api/*` routes except login/refresh endpoints
 - Token types: Access tokens (short-lived, configurable duration) and refresh tokens (longer-lived, single-use)
 
+**Authorization & Permissions System**:
+
+The application implements a comprehensive role-based access control (RBAC) system:
+
+- **Role Management**: Roles store permissions as JSON arrays, validated against `APP_PERMISSIONS` registry from `LoaderModule`
+- **Permission Guards**:
+  - `@RequirePermissions('users.create')` - Checks specific permissions
+  - `@RequireRoles('superadmin')` - Checks role membership
+  - Both guards use `PermissionsGuard` and `RolesGuard`
+- **Permission Caching**: User permissions cached in Redis indefinitely, invalidated only on role changes
+- **System Roles**: Roles with `is_system: true` cannot be modified/deleted (e.g., 'superadmin')
+- **Superadmin Protection**: Only superadmin users can create/modify other superadmin users
+- **Default Roles**: Seeder creates 7 roles (Superadmin, Store Admin, Store Manager, Cashier, Inventory Manager, Accountant, Sales Rep)
+- **Permission Format**: Follows `resource.action` pattern (e.g., `users.list`, `roles.create`, `users.roles.assign`)
+- **Usage Example**:
+  ```typescript
+  @Get()
+  @RequirePermissions('users.list')
+  async listUsers() {
+    return this.listUsers.execute();
+  }
+  ```
+
 **Core Services**:
 
 - `PrismaModule`: Database access with PostgreSQL adapter
@@ -189,16 +212,49 @@ The application uses Prisma with PostgreSQL. Key models:
 - `RefreshToken`: Single-use refresh tokens with expiration
 - `UserVerification`: Email/identity verification tokens
 - `AuthProviderClientId`: OAuth provider client configurations
+- `Role`: Permission sets with JSON permissions column, supports system roles and soft deletes
+- `UserRole`: Junction table for many-to-many user-role relationships
 
 All timestamps use `@db.Timestamptz()` for timezone-aware storage.
 
+## Roles and Permissions API
+
+### Role Management Endpoints
+
+- `GET /api/roles` - List all roles (requires `roles.list`)
+- `GET /api/roles/:id` - Get role by ID (requires `roles.list`)
+- `POST /api/roles` - Create new role (requires `roles.create`)
+- `PUT /api/roles/:id` - Update role (requires `roles.update`)
+- `DELETE /api/roles/:id` - Delete role (requires `roles.delete`)
+
+### User-Role Assignment Endpoints
+
+- `GET /api/users/:userId/roles` - Get user's roles (requires `users.roles.list`)
+- `GET /api/users/:userId/roles/permissions` - Get user's aggregated permissions (requires `users.roles.list`)
+- `POST /api/users/:userId/roles` - Assign role to user (requires `users.roles.assign`)
+- `DELETE /api/users/:userId/roles/:roleId` - Remove role from user (requires `users.roles.remove`)
+
+### Registered Permissions
+
+Current permissions exported by `UserModule.permissions`:
+
+```typescript
+'users.list', 'users.create', 'users.update', 'users.delete',
+'users.roles.list', 'users.roles.assign', 'users.roles.remove',
+'roles.list', 'roles.create', 'roles.update', 'roles.delete'
+```
+
+When adding new modules, add their permissions to the static `permissions` array to register them in `APP_PERMISSIONS`.
+
 ## Key Patterns to Follow
 
-1. **Adding New Modules**: Create module in `src/modules/{name}/`, add to `LoaderModule._mapModules()` map, define module config type, implement `configure()` static method
+1. **Adding New Modules**: Create module in `src/modules/{name}/`, add to `LoaderModule._mapModules()` map, define module config type, implement `configure()` static method, add static `permissions` array
 2. **Adding Use Cases**: Create in `use-case/{subdomain}/` with clear single responsibility, inject repositories/services via constructor
 3. **Adding Storage Disks**: Extend `Disk` class, register in `LoaderModule.configure()` via `LocalStorageModule.registerServer()`
 4. **Frontend Modules**: Create in `web/src/modules/{name}/` with components, pages, and routes
 5. **Shared Types**: Add to `contract/` workspace and export from `index.ts` for cross-workspace type safety
+6. **Protecting Endpoints**: Use `@RequirePermissions()` or `@RequireRoles()` decorators with `PermissionsGuard` or `RolesGuard`, always apply `AuthGuard` first
+7. **Adding Permissions**: Add to module's static `permissions` array, use `resource.action` naming (e.g., `products.create`), permissions automatically registered in `APP_PERMISSIONS`
 
 **Make sure run lint/npm run format after making changes**
 

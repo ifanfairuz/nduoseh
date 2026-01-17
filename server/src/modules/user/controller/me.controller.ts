@@ -89,7 +89,13 @@ export class MeController {
       throw new UnauthorizedException();
     }
 
-    return await MeResponse.withImageUrl(res, this.disk, domain);
+    return await MeResponse.withImageUrl(
+      res.user,
+      this.disk,
+      domain,
+      res.permissions,
+      res.modules,
+    );
   }
 
   /**
@@ -115,7 +121,13 @@ export class MeController {
       throw new UnauthorizedException();
     }
 
-    return await MeResponse.withImageUrl(res, this.disk, domain);
+    return await MeResponse.withImageUrl(
+      res.user,
+      this.disk,
+      domain,
+      res.permissions,
+      res.modules,
+    );
   }
 
   /**
@@ -150,6 +162,12 @@ export class MeController {
       throw new UnauthorizedException();
     }
 
-    return await MeResponse.withImageUrl(res, this.disk, domain);
+    return await MeResponse.withImageUrl(
+      res.user,
+      this.disk,
+      domain,
+      res.permissions,
+      res.modules,
+    );
   }
 }

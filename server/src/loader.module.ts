@@ -8,7 +8,7 @@ import { UserImageDisk } from './modules/user/storage/user-image.disk';
 @Module({})
 export class LoaderModule {
   static configure(config: AppConfig): DynamicModule {
-    const { modules, permissions } = this._mapModules(config);
+    const { modules, permissions, modulesMap } = this._mapModules(config);
     return {
       module: LoaderModule,
       global: true,
@@ -17,8 +17,12 @@ export class LoaderModule {
           provide: 'APP_PERMISSIONS',
           useValue: permissions,
         },
+        {
+          provide: 'FEATURE_MODULES',
+          useValue: modulesMap,
+        },
       ],
-      exports: ['APP_PERMISSIONS'],
+      exports: ['APP_PERMISSIONS', 'FEATURE_MODULES'],
       imports: [
         ...modules,
 
@@ -30,9 +34,11 @@ export class LoaderModule {
 
   static _mapModules(config: AppConfig) {
     const permissions: string[] = [];
+    const modulesMap: Record<string, string[]> = {};
     const map = {
       user: (config?: unknown) => {
         permissions.push(...UserModule.permissions);
+        modulesMap['user'] = UserModule.permissions;
         return UserModule.configure(config as UserConfig | undefined);
       },
     };
@@ -53,7 +59,6 @@ export class LoaderModule {
         } else {
           modules.push(map[module[0] as keyof typeof map]());
         }
-
         if (module[0] == 'user') hasUser = true;
       }
     }
@@ -66,6 +71,7 @@ export class LoaderModule {
     return {
       permissions,
       modules,
+      modulesMap,
     };
   }
 }
