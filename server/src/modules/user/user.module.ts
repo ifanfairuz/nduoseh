@@ -17,7 +17,7 @@ import { AuthProviderClientIdRepository } from './repositories/auth-provider-cli
 import { AuthSessionRepository } from './repositories/auth-session.repository';
 import { RefreshTokenRepository } from './repositories/refresh-token.repository';
 import { UserRepository } from './repositories/user.repository';
-import defaultConfig, { UserConfig } from './config';
+import { UserConfig } from './config';
 import { LoginPasswordUseCase } from './use-case/login/login-password.use-case';
 import { LoginUserUseCase } from './use-case/login/login-user.use-case';
 import { GetPublicKeyUseCase } from './use-case/token/get-public-key.use-case';
@@ -30,13 +30,20 @@ import { AuthController } from './controller/auth.controller';
 import { JwkController } from './controller/jwk.controller';
 import { LogoutController } from './controller/logout.controller';
 import { MeController } from './controller/me.controller';
-import { GetUserUseCase } from './use-case/user/get.user.use-case';
-import { UpdateUserUseCase } from './use-case/user/update.user.use-case';
+import { GetMeUseCase } from './use-case/me/get-me.user.use-case';
+import { UpdateMeUseCase } from './use-case/me/update.me.use-case';
 import { TokenController } from './controller/token.controller';
 import { UserImageDisk } from './storage/user-image.disk';
 import { LocalStorageService } from 'src/services/storage/local-storage.service';
-import { UpdateImageUserUseCase } from './use-case/user/update-image.user.use-case';
+import { UpdateImageMeUseCase } from './use-case/me/update-image.me.use-case';
 import { AuthMiddleware } from './auth.middleware';
+import { getServerName } from 'src/utils/server';
+import { ListUsersUseCase } from './use-case/user/list-users.use-case';
+import { GetUserByIdUseCase } from './use-case/user/get-user-by-id.use-case';
+import { CreateUserUseCase } from './use-case/user/create-user.use-case';
+import { UpdateUserUseCase } from './use-case/user/update-user.use-case';
+import { DeleteUserUseCase } from './use-case/user/delete-user.use-case';
+import { UsersController } from './controller/users.controller';
 
 function genMetadata(config: UserConfig): ModuleMetadata {
   const verifyTokenProvider: Provider = {
@@ -80,9 +87,14 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       RefreshTokenUseCase,
       verifyTokenProvider,
       LogoutUseCase,
-      GetUserUseCase,
+      GetMeUseCase,
+      UpdateMeUseCase,
+      UpdateImageMeUseCase,
+      ListUsersUseCase,
+      GetUserByIdUseCase,
+      CreateUserUseCase,
       UpdateUserUseCase,
-      UpdateImageUserUseCase,
+      DeleteUserUseCase,
     ],
     exports: [
       // exported modules
@@ -106,9 +118,9 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       RefreshTokenUseCase,
       VerifyTokenUseCase,
       LogoutUseCase,
-      GetUserUseCase,
-      UpdateUserUseCase,
-      UpdateImageUserUseCase,
+      GetMeUseCase,
+      UpdateMeUseCase,
+      UpdateImageMeUseCase,
     ],
     controllers: [
       AuthController,
@@ -116,22 +128,39 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       TokenController,
       LogoutController,
       MeController,
+      UsersController,
     ],
   };
 }
 
 @Global()
-@Module(genMetadata(defaultConfig))
+@Module({})
 export class UserModule implements NestModule {
-  static withOptions(options: {
+  static permissions = [
+    'users.list',
+    'users.create',
+    'users.update',
+    'users.delete',
+  ];
+
+  static defaultConfig: UserConfig = {
+    auth: {
+      remote_auth: process.env.REMOTE_AUTH_URL,
+      server_name: getServerName(),
+      access_token_duration: { minutes: 10 },
+      refresh_token_duration: { days: 10 },
+    },
+  };
+
+  static configure(options?: {
     auth?: Partial<UserConfig['auth']>;
   }): DynamicModule {
     const metadata = genMetadata({
-      ...defaultConfig,
+      ...UserModule.defaultConfig,
       ...options,
       auth: {
-        ...defaultConfig.auth,
-        ...options.auth,
+        ...UserModule.defaultConfig.auth,
+        ...options?.auth,
       },
     });
 

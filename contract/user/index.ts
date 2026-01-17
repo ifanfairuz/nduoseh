@@ -18,6 +18,15 @@ export interface IUpdateMeBody {
   callname: string;
 }
 
-export interface IUpdateUserImageBody {
+export interface IUpdateMeImageBody {
   image: string | File | Blob;
 }
+
+export interface ICreateUserBody {
+  name: string;
+  email: string;
+  password: string;
+  callname?: string;
+}
+
+export type IUpdateUserBody = Partial<Omit<ICreateUserBody, "password">>;

@@ -4,7 +4,7 @@ import { UserRepository } from '../../repositories/user.repository';
 import { VerifyTokenUseCase } from '../token/verify-token.use-case';
 
 @Injectable()
-export class GetUserUseCase {
+export class GetMeUseCase {
   constructor(
     @Inject() private readonly user: UserRepository,
     @Inject() private readonly verify: VerifyTokenUseCase,

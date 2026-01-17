@@ -18,9 +18,9 @@ import { MeResponse } from '../response/user.response';
 import { ApiController, ApiResponse, Token, Domain } from 'src/utils/http';
 import type { IUpdateMeBody, VerifiedToken } from '@panah/contract';
 import { Validation } from 'src/utils/validation';
-import { GetUserUseCase } from '../use-case/user/get.user.use-case';
-import { UpdateUserUseCase } from '../use-case/user/update.user.use-case';
-import { UpdateImageUserUseCase } from '../use-case/user/update-image.user.use-case';
+import { GetMeUseCase } from '../use-case/me/get-me.user.use-case';
+import { UpdateMeUseCase } from '../use-case/me/update.me.use-case';
+import { UpdateImageMeUseCase } from '../use-case/me/update-image.me.use-case';
 import { UserImageDisk } from '../storage/user-image.disk';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -66,9 +66,9 @@ const UpdateBody = z.object({
 @ApiController('me', { tag: 'User', auth: true })
 export class MeController {
   constructor(
-    @Inject() private readonly get: GetUserUseCase,
-    @Inject() private readonly update: UpdateUserUseCase,
-    @Inject() private readonly updateImage: UpdateImageUserUseCase,
+    @Inject() private readonly get: GetMeUseCase,
+    @Inject() private readonly update: UpdateMeUseCase,
+    @Inject() private readonly updateImage: UpdateImageMeUseCase,
     @Inject() private readonly disk: UserImageDisk,
   ) {}
 

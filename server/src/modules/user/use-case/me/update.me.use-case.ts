@@ -3,7 +3,7 @@ import { UserRepository } from '../../repositories/user.repository';
 import { IUpdateMeBody, VerifiedToken } from '@panah/contract';
 
 @Injectable()
-export class UpdateUserUseCase {
+export class UpdateMeUseCase {
   constructor(@Inject() private readonly user: UserRepository) {}
 
   async execute(access_token: VerifiedToken, payload: IUpdateMeBody) {

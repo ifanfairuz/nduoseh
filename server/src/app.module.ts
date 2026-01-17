@@ -2,13 +2,15 @@ import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { PrismaModule } from './services/prisma/prisma.module';
 import { RedisModule } from './services/redis/redis.module';
-import { UserModule } from './modules/user/user.module';
 import { EventModule } from './services/event/event.module';
 import { HealthCheckModule } from './modules/health-check/health-check.module';
 import { LocalStorageModule } from './services/storage/local-storage.module';
-import { UserImageDisk } from './modules/user/storage/user-image.disk';
 import { APP_FILTER } from '@nestjs/core';
 import { ErrorFilter } from './error.filter';
+import { resolveConfig } from './app.config';
+import { LoaderModule } from './loader.module';
+
+const config = resolveConfig();
 
 @Module({
   imports: [
@@ -26,10 +28,7 @@ import { ErrorFilter } from './error.filter';
     RedisModule,
     EventModule,
     HealthCheckModule,
-    UserModule.withOptions({}),
-
-    // end of modules
-    LocalStorageModule.registerServer([UserImageDisk]),
+    LoaderModule.configure(config),
   ],
   providers: [
     {

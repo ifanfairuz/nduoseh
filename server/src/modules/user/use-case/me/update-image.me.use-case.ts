@@ -4,7 +4,7 @@ import { UserImageDisk } from '../../storage/user-image.disk';
 import { VerifiedToken } from '@panah/contract';
 
 @Injectable()
-export class UpdateImageUserUseCase {
+export class UpdateImageMeUseCase {
   constructor(
     @Inject() private readonly user: UserRepository,
     @Inject() private readonly disk: UserImageDisk,
