@@ -148,6 +148,15 @@ The application implements a comprehensive role-based access control (RBAC) syst
 
 **API Documentation**: Swagger/OpenAPI docs available at `/doc` by default (configurable via `SWAGGER_URL` env var, disable with `SWAGGER_DISABLE=true`)
 
+**GraphQL Schema**: The user module includes GraphQL definitions in `server/src/modules/user/user.graphql`:
+
+- **Types**: User, Role, UserRole, UserWithPermissions, pagination types (UsersPage, RolesPage)
+- **Queries**: users, user, me, roles, role, roleBySlug, userRoles, userPermissions
+- **Mutations**: User CRUD (create, update, delete, restore), Role CRUD, User-Role operations (assign, remove, bulk operations)
+- **Input Types**: CreateUserInput, UpdateUserInput, CreateRoleInput, UpdateRoleInput, filter inputs
+- **Scalars**: DateTime for timestamp fields
+- Schema excludes authentication-related types (AuthSession, RefreshToken, Account) - focused on user and role management only
+
 ### Web Architecture
 
 **State Management**: Uses Pinia for global state:

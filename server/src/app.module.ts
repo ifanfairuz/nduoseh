@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { LoggerModule } from 'nestjs-pino';
 import { PrismaModule } from './services/prisma/prisma.module';
 import { RedisModule } from './services/redis/redis.module';
@@ -26,6 +28,10 @@ const config = resolveConfig();
     LocalStorageModule,
     PrismaModule,
     RedisModule,
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      typePaths: ['./src/**/*.graphql'],
+    }),
     EventModule,
     HealthCheckModule,
     LoaderModule.configure(config),
