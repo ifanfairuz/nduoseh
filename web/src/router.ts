@@ -7,6 +7,7 @@ import {
 import Error from "./pages/Error.vue";
 import { useAuthStore } from "./stores/auth.store";
 import { useProgressBar } from "./composables/useProgressBar";
+import DashboardLayout from "./layouts/DashboardLayout.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -17,7 +18,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/",
-    component: () => import("./layouts/DashboardLayout.vue"),
+    component: DashboardLayout,
     meta: { authed: true },
     children: [
       {
