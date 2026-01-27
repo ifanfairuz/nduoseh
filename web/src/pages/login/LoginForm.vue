@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { ValidationException } from "@/api/exceptions/ValidationException";
 import { WithMessageException } from "@/api/exceptions/WithMessageException";
+import InputPassword from "@/components/input/InputPassword.vue";
 
 const props = defineProps<{
   class?: HTMLAttributes["class"];
@@ -32,7 +33,7 @@ const schema = toTypedSchema(
   z.object({
     email: z.string().email({ message: "Email is invalid" }),
     password: z.string().min(1, { message: "Password is required" }),
-  })
+  }),
 );
 const form = useForm({
   validationSchema: schema,
@@ -88,7 +89,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           <FormItem>
             <FormLabel for="password"> Password </FormLabel>
             <FormControl>
-              <Input
+              <InputPassword
                 id="password"
                 type="password"
                 placeholder="••••••••"
