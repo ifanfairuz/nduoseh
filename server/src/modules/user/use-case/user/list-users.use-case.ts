@@ -101,9 +101,7 @@ export class ListUsersUseCase {
       data: await Promise.all(
         users.map(async (u) => ({
           ...u,
-          image: u.image?.startsWith('http')
-            ? u.image
-            : await this.getImageUrl(u.image, domain),
+          image: await this.getImageUrl(u.image, domain),
         })),
       ),
       pagination: {
@@ -117,6 +115,8 @@ export class ListUsersUseCase {
 
   async getImageUrl(image: string | null, domain?: string) {
     if (!image) return null;
+    if (image.startsWith('http')) return image;
+
     const file = await this.disk.get(image);
     return await file.getUrl(domain);
   }
