@@ -144,7 +144,6 @@ const table = useVueTable({
   },
   enableGlobalFilter: true,
   enableMultiSort: true,
-  isMultiSortEvent: (_) => true,
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
