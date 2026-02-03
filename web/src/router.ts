@@ -37,6 +37,30 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: "/users/create",
+        name: "users.create",
+        component: () => import("./modules/user/pages/UserCreate.vue"),
+        meta: {
+          permissions: ["users.create"],
+          breadcrumbs: [
+            { name: "Users", target: { name: "users.list" } },
+            { name: "Create", target: { name: "users.create" } },
+          ],
+        },
+      },
+      {
+        path: "/users/edit/:id",
+        name: "users.edit",
+        component: () => import("./modules/user/pages/UserEdit.vue"),
+        meta: {
+          permissions: ["users.update"],
+          breadcrumbs: [
+            { name: "Users", target: { name: "users.list" } },
+            { name: "Edit", target: { name: "users.edit" } },
+          ],
+        },
+      },
+      {
         path: "/profile/edit",
         name: "profile.edit",
         component: () => import("./pages/profile/ProfileEdit.vue"),

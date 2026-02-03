@@ -8,6 +8,7 @@ import type {
 } from "@panah/contract";
 import { fromUnixTime, getUnixTime, isBefore } from "date-fns";
 import { defineStore } from "pinia";
+import { computed } from "vue";
 
 interface Token {
   token: string;
@@ -171,3 +172,13 @@ export const useAuthStore = defineStore("auth", {
     },
   },
 });
+
+export const useHasPermission = (perm: string | string[]) => {
+  const store = useAuthStore();
+  const authorized = computed(() => {
+    if (!store.permissions) return false;
+    return store.hasPermission(perm);
+  });
+
+  return authorized;
+};

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import type { User } from "@panah/contract";
 import type { ColumnDef, SortingState } from "@tanstack/vue-table";
 import {
@@ -16,10 +16,31 @@ import {
 import { getUsers } from "../user.api";
 import { useRoute } from "vue-router";
 import { updateQueryParam } from "@/lib/utils";
-import { formatDate } from "date-fns";
 import { useDebounceFn } from "@vueuse/core";
+import { h } from "vue";
+import UsersRowAction from "./UsersRowAction.vue";
+import { useHasPermission } from "@/stores/auth.store";
+import UserImageCell from "./UserImageCell.vue";
 
-const columns: ColumnDef<User>[] = [
+const props = withDefaults(
+  defineProps<{
+    editable?: boolean;
+    deletable?: boolean;
+  }>(),
+  {
+    editable: false,
+    deletable: false,
+  },
+);
+
+const _columns: ColumnDef<User, User>[] = [
+  {
+    id: "image",
+    accessorKey: "image",
+    header: "Image",
+    enableSorting: false,
+    cell: ({ row }) => h(UserImageCell, { data: row.original }),
+  },
   {
     id: "name",
     accessorKey: "name",
@@ -36,13 +57,35 @@ const columns: ColumnDef<User>[] = [
     accessorKey: "callname",
     header: "Callname",
   },
-  {
-    id: "updated_at",
-    accessorKey: "updated_at",
-    header: "Last Update",
-    cell: ({ getValue }) => formatDate(getValue<string>(), "dd/MM/yyyy HH:mm"),
-  },
 ];
+
+const canEdit = useHasPermission("users.update");
+const canDelete = useHasPermission("users.delete");
+
+const columns = computed(() => {
+  if (!props.editable && !props.deletable) {
+    return _columns;
+  }
+
+  return [
+    ..._columns,
+    {
+      header: "#",
+      enableHiding: false,
+      enableSorting: false,
+      cell: ({ row }) => {
+        return h(UsersRowAction, {
+          data: row.original,
+          editable: canEdit.value,
+          deletable: canDelete.value,
+          onInvalidateData: () => {
+            client.invalidateQueries();
+          },
+        });
+      },
+    },
+  ];
+});
 
 const route = useRoute();
 const q_limit = parseInt(`${route.query.users_limit}`);
@@ -64,12 +107,15 @@ const query = useQuery(
     queryKey: ["users", state],
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      updateQueryParam({
-        ...route.query,
-        users_limit: state.value.limit.toString(),
-        users_page: state.value.page.toString(),
-        users_keyword: state.value.keyword?.toString(),
-      });
+      updateQueryParam(
+        {
+          ...route.query,
+          users_limit: state.value.limit.toString(),
+          users_page: state.value.page.toString(),
+          users_keyword: state.value.keyword?.toString(),
+        },
+        true,
+      );
 
       return await getUsers({
         pagination: {
@@ -108,7 +154,7 @@ const onSearch = useDebounceFn((keyword: string) => {
 </script>
 
 <template>
-  <div class="container py-10 mx-auto">
+  <div class="container py-4 mx-auto">
     <QueryTable
       query-key="users"
       :columns="columns"

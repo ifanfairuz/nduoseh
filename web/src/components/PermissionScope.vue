@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { useAuthStore } from "@/stores/auth.store";
-import { computed } from "vue";
+import { useHasPermission } from "@/stores/auth.store";
 
 const props = defineProps<{ if: string | string[] }>();
-const store = useAuthStore();
-
-const authorized = computed(() => {
-  if (!store.permissions) return false;
-  return store.hasPermission(props.if);
-});
+const authorized = useHasPermission(props.if);
 </script>
 
 <template>

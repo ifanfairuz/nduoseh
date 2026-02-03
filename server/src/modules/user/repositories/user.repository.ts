@@ -80,6 +80,27 @@ export class UserRepository extends PrismaRepository {
     });
   }
 
+  async restore(id: User['id'], options?: PrismaMethodOptions) {
+    await this._client(options).user.update({
+      where: { id },
+      data: { deleted_at: null },
+    });
+  }
+
+  async findByIdDeleted(id: User['id'], options?: PrismaMethodOptions) {
+    return await this._client(options).user.findUnique({
+      where: { id, deleted_at: { not: null } },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        email_verified: true,
+        image: true,
+        callname: true,
+      },
+    });
+  }
+
   async findById(id: User['id'], options?: PrismaMethodOptions) {
     return await this._client(options).user.findUnique({
       where: { id, deleted_at: null },

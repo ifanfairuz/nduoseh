@@ -32,7 +32,7 @@ const schema = toTypedSchema(
     email: z.string().email(),
     name: z.string().min(2).max(255),
     callname: z.string().min(2).max(20),
-  })
+  }),
 );
 const form = useForm({
   validationSchema: schema,
@@ -54,7 +54,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       name: values.name,
       callname: values.callname,
     });
-    toast.success("Berhasil edit foto");
+    toast.success("Success edit profile");
   } catch (err) {
     if (err instanceof ValidationException) {
       form.setErrors(err.issues);

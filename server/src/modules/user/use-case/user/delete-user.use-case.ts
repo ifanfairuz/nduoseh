@@ -17,4 +17,17 @@ export class DeleteUserUseCase {
 
     return { success: true, message: 'User deleted successfully' };
   }
+
+  async restore(userId: string) {
+    // Check if user exists (findById only returns only-deleted users)
+    const user = await this.userRepository.findByIdDeleted(userId);
+    if (!user) {
+      throw new NotFoundException('User deleted not found');
+    }
+
+    // Soft delete user
+    await this.userRepository.restore(userId);
+
+    return { success: true, message: 'User restore successfully' };
+  }
 }

@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/services/prisma/prisma.service';
 import type { OffsetPaginatedResult, SortQueries, User } from '@panah/contract';
 import { fromQueries } from 'src/services/prisma/prisma.util';
+import { UserImageDisk } from '../../storage/user-image.disk';
 
 export interface ListUsersParams {
   page?: number;
@@ -13,10 +14,14 @@ export interface ListUsersParams {
 
 @Injectable()
 export class ListUsersUseCase {
-  constructor(@Inject() private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject() private readonly prisma: PrismaService,
+    @Inject() private readonly disk: UserImageDisk,
+  ) {}
 
   async execute(
     params: ListUsersParams = {},
+    domain?: string,
   ): Promise<OffsetPaginatedResult<User>> {
     const { page = 1, limit = 10, keyword, sort } = params;
 
@@ -93,7 +98,14 @@ export class ListUsersUseCase {
     const totalPages = Math.ceil(total / take);
 
     return {
-      data: users,
+      data: await Promise.all(
+        users.map(async (u) => ({
+          ...u,
+          image: u.image?.startsWith('http')
+            ? u.image
+            : await this.getImageUrl(u.image, domain),
+        })),
+      ),
       pagination: {
         page: currentPage,
         limit: take,
@@ -101,5 +113,11 @@ export class ListUsersUseCase {
         totalPages,
       },
     };
+  }
+
+  async getImageUrl(image: string | null, domain?: string) {
+    if (!image) return null;
+    const file = await this.disk.get(image);
+    return await file.getUrl(domain);
   }
 }

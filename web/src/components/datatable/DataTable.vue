@@ -202,7 +202,7 @@ const info = computed(() => {
                   }
                 "
               >
-                {{ column.id }}
+                {{ column.id.replace(/_/g, " ") }}
               </DropdownMenuCheckboxItem>
             </template>
           </DropdownMenuContent>
@@ -242,7 +242,7 @@ const info = computed(() => {
             </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody :class="fetching ? 'blur-xs' : ''">
+        <TableBody>
           <template v-if="pending">
             <TableRow v-for="row in 10" :key="row">
               <TableCell v-for="cell in columns" :key="cell.id">

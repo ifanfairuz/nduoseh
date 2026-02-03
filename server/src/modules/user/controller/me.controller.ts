@@ -6,14 +6,12 @@ import {
   HttpCode,
   Body,
   Put,
-  FileValidator,
   Post,
   UseInterceptors,
   UploadedFile,
   ParseFilePipe,
 } from '@nestjs/common';
 
-import { IFile } from '@nestjs/common/pipes/file/interfaces';
 import { MeResponse } from '../response/user.response';
 import { ApiController, ApiResponse, Token, Domain } from 'src/utils/http';
 import type { IUpdateMeBody, VerifiedToken } from '@panah/contract';
@@ -23,36 +21,7 @@ import { UpdateMeUseCase } from '../use-case/me/update.me.use-case';
 import { UpdateImageMeUseCase } from '../use-case/me/update-image.me.use-case';
 import { UserImageDisk } from '../storage/user-image.disk';
 import { FileInterceptor } from '@nestjs/platform-express';
-
-export class MeImageValidator extends FileValidator {
-  constructor() {
-    super({});
-  }
-
-  isValid(file?: IFile | IFile[]): boolean | Promise<boolean> {
-    if (!file) {
-      return false;
-    }
-
-    if (Array.isArray(file)) {
-      return false;
-    }
-
-    if (file.mimetype !== 'image/jpeg' && file.mimetype !== 'image/png') {
-      return false;
-    }
-
-    if (file.size > 5_000_000) {
-      return false;
-    }
-
-    return true;
-  }
-
-  buildErrorMessage(): string {
-    return 'File must be a jpeg or png image and less than 5MB';
-  }
-}
+import { ImageProfileValidator } from '../validator/image-profile.validator';
 
 const UpdateBody = z.object({
   email: z.email(),
@@ -146,7 +115,7 @@ export class MeController {
   async updateUserImage(
     @UploadedFile(
       new ParseFilePipe({
-        validators: [new MeImageValidator()],
+        validators: [new ImageProfileValidator()],
       }),
     )
     image: Express.Multer.File,

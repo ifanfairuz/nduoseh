@@ -1,11 +1,15 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/services/prisma/prisma.service';
+import { UserImageDisk } from '../../storage/user-image.disk';
 
 @Injectable()
 export class GetUserByIdUseCase {
-  constructor(@Inject() private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject() private readonly prisma: PrismaService,
+    @Inject() private readonly disk: UserImageDisk,
+  ) {}
 
-  async execute(userId: string) {
+  async execute(userId: string, domain?: string) {
     const user = await this.prisma.user.findFirst({
       where: {
         id: userId,
@@ -27,6 +31,11 @@ export class GetUserByIdUseCase {
       throw new NotFoundException('User not found');
     }
 
-    return user;
+    return {
+      ...user,
+      image: await (
+        user.image ? await this.disk.get(user.image) : undefined
+      )?.getUrl(domain),
+    };
   }
 }

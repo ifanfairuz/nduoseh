@@ -5,12 +5,15 @@ import {
   HttpCode,
   Inject,
   Param,
+  ParseFilePipe,
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiController } from 'src/utils/http';
+import { ApiController, Domain } from 'src/utils/http';
 import { Validation } from 'src/utils/validation';
 import z from 'zod';
 import { AuthGuard } from '../auth.guard';
@@ -24,6 +27,8 @@ import type {
   IUpdateUserBody,
   OffsetPaginationParams,
 } from '@panah/contract';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImageProfileValidator } from '../validator/image-profile.validator';
 
 interface ListUsersQuery extends OffsetPaginationParams {
   keyword?: string;
@@ -79,8 +84,8 @@ export class UsersController {
   @Get()
   @HttpCode(200)
   @Validation(ListUsersQuery, 'query')
-  async listUsers(@Query() query: ListUsersQuery) {
-    return await this.listUsersUseCase.execute(query);
+  async listUsers(@Query() query: ListUsersQuery, @Domain() domain?: string) {
+    return await this.listUsersUseCase.execute(query, domain);
   }
 
   /**
@@ -88,8 +93,8 @@ export class UsersController {
    */
   @Get(':id')
   @HttpCode(200)
-  async getUserById(@Param('id') id: string) {
-    return this.getUserByIdUseCase.execute(id);
+  async getUserById(@Param('id') id: string, @Domain() domain?: string) {
+    return this.getUserByIdUseCase.execute(id, domain);
   }
 
   /**
@@ -98,8 +103,22 @@ export class UsersController {
   @Post()
   @HttpCode(201)
   @Validation(CreateUserBody)
-  async createUser(@Body() body: ICreateUserBody) {
-    return this.createUserUseCase.execute(body);
+  @UseInterceptors(FileInterceptor('image'))
+  async createUser(
+    @Body() body: ICreateUserBody,
+    @UploadedFile(
+      new ParseFilePipe({
+        fileIsRequired: false,
+        validators: [new ImageProfileValidator({ optional: true })],
+      }),
+    )
+    image_profile?: Express.Multer.File,
+    @Domain() domain?: string,
+  ) {
+    const image = image_profile
+      ? { buffer: image_profile.buffer, mime: image_profile.mimetype }
+      : undefined;
+    return this.createUserUseCase.execute({ ...body, image }, domain);
   }
 
   /**
@@ -108,8 +127,26 @@ export class UsersController {
   @Put(':id')
   @HttpCode(200)
   @Validation(UpdateUserBody)
-  async updateUser(@Param('id') id: string, @Body() body: IUpdateUserBody) {
-    return this.updateUserUseCase.execute({ userId: id, ...body });
+  @UseInterceptors(FileInterceptor('image'))
+  async updateUser(
+    @Param('id') id: string,
+    @Body() body: IUpdateUserBody,
+    @UploadedFile(
+      new ParseFilePipe({
+        fileIsRequired: false,
+        validators: [new ImageProfileValidator({ optional: true })],
+      }),
+    )
+    image_profile?: Express.Multer.File,
+    @Domain() domain?: string,
+  ) {
+    const image = image_profile
+      ? { buffer: image_profile.buffer, mime: image_profile.mimetype }
+      : undefined;
+    return this.updateUserUseCase.execute(
+      { userId: id, ...body, image },
+      domain,
+    );
   }
 
   /**
@@ -119,5 +156,14 @@ export class UsersController {
   @HttpCode(200)
   async deleteUser(@Param('id') id: string) {
     return this.deleteUserUseCase.execute(id);
+  }
+
+  /**
+   * Restore user
+   */
+  @Post(':id/restore')
+  @HttpCode(200)
+  async restoreUser(@Param('id') id: string) {
+    return this.deleteUserUseCase.restore(id);
   }
 }
