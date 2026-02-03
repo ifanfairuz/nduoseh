@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiController } from 'src/utils/http';
@@ -18,7 +19,27 @@ import { GetUserByIdUseCase } from '../use-case/user/get-user-by-id.use-case';
 import { CreateUserUseCase } from '../use-case/user/create-user.use-case';
 import { UpdateUserUseCase } from '../use-case/user/update-user.use-case';
 import { DeleteUserUseCase } from '../use-case/user/delete-user.use-case';
-import type { ICreateUserBody, IUpdateUserBody } from '@panah/contract';
+import type {
+  ICreateUserBody,
+  IUpdateUserBody,
+  OffsetPaginationParams,
+} from '@panah/contract';
+
+interface ListUsersQuery extends OffsetPaginationParams {
+  keyword?: string;
+}
+
+const ListUsersQuery = z.object({
+  page: z.coerce.number().int().min(1, 'Page must be at least 1').optional(),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1, 'Limit must be at least 1')
+    .max(100, 'Limit cannot exceed 100')
+    .optional(),
+  keyword: z.string().max(100, 'Keyword too long').optional(),
+  sort: z.array(z.any()).optional(),
+});
 
 const CreateUserBody = z.object({
   name: z.string().min(1, 'Name is required').max(255, 'Name too long'),
@@ -49,12 +70,17 @@ export class UsersController {
   ) {}
 
   /**
-   * List all users
+   * List all users with offset pagination
+   * Query params:
+   * - page: page number (default: 1)
+   * - limit: items per page (default: 10, max: 100)
+   * - keyword: search keyword for name, email, or callname
    */
   @Get()
   @HttpCode(200)
-  async listUsers() {
-    return this.listUsersUseCase.execute();
+  @Validation(ListUsersQuery, 'query')
+  async listUsers(@Query() query: ListUsersQuery) {
+    return await this.listUsersUseCase.execute(query);
   }
 
   /**

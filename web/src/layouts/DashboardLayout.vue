@@ -78,7 +78,7 @@ onBeforeMount(async () => {
           />
           <Breadcrumb>
             <BreadcrumbList>
-              <template v-for="(item, index) in breadcrumbs" :key="index">
+              <template v-for="(item, index) in breadcrumbs" :key="item.name">
                 <BreadcrumbItem class="hidden md:block">
                   <BreadcrumbLink
                     v-if="index < breadcrumbs.length - 1 && item.target"

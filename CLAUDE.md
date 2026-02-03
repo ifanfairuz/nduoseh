@@ -187,8 +187,18 @@ The application implements a comprehensive role-based access control (RBAC) syst
 
 Shared TypeScript types exported from `contract/index.ts`:
 
-- Type-only exports for models, auth, and user domains
+- Type-only exports for models, auth, user, and pagination domains
+- **Pagination Types**:
+  - **Cursor Pagination** (for real-time data, infinite scrolling):
+    - `PaginatedResult<T>`: Generic pagination response with data and pageInfo
+    - `PageInfo`: Cursor pagination metadata (hasNextPage, hasPreviousPage, startCursor, endCursor)
+    - `CursorPaginationParams`: Query parameters for cursor pagination (cursor, limit)
+  - **Offset Pagination** (for standard page-based navigation):
+    - `OffsetPaginatedResult<T>`: Generic pagination response with data and pagination
+    - `OffsetPageInfo`: Offset pagination metadata (page, limit, total, totalPages)
+    - `OffsetPaginationParams`: Query parameters for offset pagination (page, limit)
 - Used by both server and web to ensure type safety across boundaries
+- User module currently uses offset pagination only
 
 ## Environment Variables
 
@@ -226,7 +236,30 @@ The application uses Prisma with PostgreSQL. Key models:
 
 All timestamps use `@db.Timestamptz()` for timezone-aware storage.
 
-## Roles and Permissions API
+## API Endpoints
+
+### User Management Endpoints
+
+- `GET /api/users` - List users with offset pagination and keyword search (requires `users.list`)
+  - Query params:
+    - `page` (optional, >= 1, default: 1): page number
+    - `limit` (optional, 1-100, default: 10): items per page
+    - `keyword` (optional, max 100 chars): search keyword for name, email, or callname
+  - Returns: `OffsetPaginatedResult<User>` with data array and pagination metadata
+  - Response includes `pagination` with `page`, `limit`, `total`, `totalPages`
+  - To fetch next page, increment `page` parameter
+  - Search is case-insensitive and matches partial strings across name, email, and callname fields
+- `GET /api/users/:id` - Get user by ID (requires `users.list`)
+- `POST /api/users` - Create new user (requires `users.create`)
+- `PUT /api/users/:id` - Update user (requires `users.update`)
+- `DELETE /api/users/:id` - Delete user (soft delete) (requires `users.delete`)
+
+**Pagination & Search Details**:
+- Uses offset-based pagination only
+- Results ordered by `created_at` descending
+- Keyword search queries across name, email, and callname fields simultaneously
+- Search is case-insensitive using PostgreSQL `ilike` comparison
+- Combines pagination and search seamlessly
 
 ### Role Management Endpoints
 
@@ -255,6 +288,54 @@ Current permissions exported by `UserModule.permissions`:
 
 When adding new modules, add their permissions to the static `permissions` array to register them in `APP_PERMISSIONS`.
 
+## Testing
+
+### Running Tests
+
+```bash
+# Run all unit tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:cov
+
+# Run E2E tests
+npm run test:e2e
+
+# Run specific test file
+npm test -- --testPathPatterns="list-users"
+```
+
+### Test Structure
+
+**Unit Tests**: Located in `src/**/*.spec.ts` files, testing individual use cases in isolation
+
+- Use Jest with `@nestjs/testing` for dependency injection
+- Mock dependencies using `jest.fn()` and `jest.spyOn()`
+- Test file naming: `{use-case-name}.use-case.spec.ts`
+- Add `/* eslint-disable @typescript-eslint/unbound-method */` to avoid Jest mocking eslint errors
+- Module path mapping configured in `package.json` jest config (`src/*` maps to `<rootDir>/*`)
+
+**E2E Tests**: Located in `test/**/*.e2e-spec.ts` files, testing full request/response cycles
+
+- Use Supertest for HTTP assertions
+- Test actual endpoints with real database interactions
+- Setup/teardown test data in `beforeAll`/`afterAll` hooks
+- Add `/* eslint-disable @typescript-eslint/no-unsafe-member-access */` for Supertest response assertions
+
+### Test Coverage
+
+Current test coverage includes:
+- **ListUsersUseCase** (17 tests): Offset pagination, limit validation, page bounds, total count calculation, keyword search (name/email/callname), case-insensitive search, combined search and pagination
+- **CreateUserUseCase**: User creation, transaction handling, callname defaults
+- **GetUserByIdUseCase**: User retrieval, not found handling
+- **UpdateUserUseCase**: User updates, field validation
+- **DeleteUserUseCase**: Soft delete operations
+- **UsersController E2E**: Full API endpoint testing (list with offset pagination, keyword search, get, create, update, delete)
+
 ## Key Patterns to Follow
 
 1. **Adding New Modules**: Create module in `src/modules/{name}/`, add to `LoaderModule._mapModules()` map, define module config type, implement `configure()` static method, add static `permissions` array
@@ -264,6 +345,12 @@ When adding new modules, add their permissions to the static `permissions` array
 5. **Shared Types**: Add to `contract/` workspace and export from `index.ts` for cross-workspace type safety
 6. **Protecting Endpoints**: Use `@RequirePermissions()` or `@RequireRoles()` decorators with `PermissionsGuard` or `RolesGuard`, always apply `AuthGuard` first
 7. **Adding Permissions**: Add to module's static `permissions` array, use `resource.action` naming (e.g., `products.create`), permissions automatically registered in `APP_PERMISSIONS`
+8. **Implementing Pagination**:
+   - **Cursor Pagination**: Use `CursorPaginationParams` and `PaginatedResult<T>` types; validate with Zod; fetch `take + 1` records to determine `hasNextPage`
+   - **Offset Pagination**: Use `OffsetPaginationParams` and `OffsetPaginatedResult<T>` types; validate with Zod; use `count()` and `skip/take` for results; run count and query in parallel with `Promise.all()`
+   - User module uses offset pagination exclusively for simplicity and UX consistency
+9. **Implementing Search/Filtering**: Use Prisma `OR` conditions with `contains` and `mode: 'insensitive'` for case-insensitive multi-field search; combine with pagination where clause; validate keyword length (e.g., max 100 chars)
+9. **Writing Tests**: Create `.spec.ts` files alongside use cases; mock dependencies with Jest; write E2E tests for controllers in `test/` directory; use eslint-disable comments for test-specific type safety issues
 
 **Make sure run lint/npm run format after making changes**
 

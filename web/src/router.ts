@@ -30,7 +30,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "/users",
         name: "users.list",
-        component: () => import("./modules/user/pages/UserList.vue"),
+        component: () => import("./modules/user/pages/UsersList.vue"),
         meta: {
           permissions: ["users.list"],
           breadcrumbs: [{ name: "Users", target: { name: "users.list" } }],

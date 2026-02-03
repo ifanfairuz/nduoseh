@@ -1,5 +1,6 @@
-import { createPinia, MutationType } from "pinia";
 import { type ObjectPlugin, type App as VueApp } from "vue";
+import { createPinia, MutationType } from "pinia";
+import { VueQueryPlugin } from "@tanstack/vue-query";
 import { router } from "./router";
 import DashboardContent from "./components/DashboardContent.vue";
 import { useAuthStore } from "./stores/auth.store";
@@ -8,6 +9,7 @@ export class App implements ObjectPlugin {
   install(app: VueApp) {
     app.use(createPinia());
     app.use(router);
+    app.use(VueQueryPlugin);
     app.component("dashboard-content", DashboardContent);
 
     // listen auth

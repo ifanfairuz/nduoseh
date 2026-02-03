@@ -2,6 +2,7 @@ import type { IRefreshTokenResponse } from "@panah/contract";
 import { config } from "@/lib/config";
 import { useAuthStore } from "@/stores/auth.store";
 import axios, { isAxiosError } from "axios";
+import qs from "qs";
 import { ValidationException } from "./exceptions/ValidationException";
 import { WithMessageException } from "./exceptions/WithMessageException";
 
@@ -18,6 +19,7 @@ export function createHttpClient() {
       Accept: "application/json",
     },
     withCredentials: true,
+    paramsSerializer: (p) => qs.stringify(p, { arrayFormat: "repeat" }),
   });
 
   http.interceptors.response.use(
@@ -33,20 +35,20 @@ export function createHttpClient() {
           return Promise.reject(
             new ValidationException(
               err.response.data.issues,
-              err.response.data.message
-            )
+              err.response.data.message,
+            ),
           );
         }
 
         if (err.response?.data.message) {
           return Promise.reject(
-            new WithMessageException(err.response.data.message)
+            new WithMessageException(err.response.data.message),
           );
         }
       }
 
       return Promise.reject(err);
-    }
+    },
   );
 
   return http;
@@ -69,7 +71,7 @@ async function refreshToken(store: ReturnType<typeof useAuthStore>) {
   is_refreshing = true;
   try {
     const res = await createHttpClient().post<IRefreshTokenResponse>(
-      "/auth/token/refresh"
+      "/auth/token/refresh",
     );
     store.setToken(res.data.access_token);
     queue.forEach((fn) => fn(res.data.access_token.token));
@@ -133,14 +135,14 @@ http.interceptors.response.use(
           } catch (error) {
             reject(error);
           }
-        })
+        }),
       );
     }
 
     const token = await refreshToken(store);
     original.headers["Authorization"] = `Bearer ${token.token}`;
     return http(original);
-  }
+  },
 );
 
 export default http;
