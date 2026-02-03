@@ -6,7 +6,6 @@ import {
 import { User } from '@panah/contract';
 import { EmailAlreadyExistsException } from '../exceptions/EmailAlreadyExistsException';
 import { createCuid2Generator } from 'src/utils/generator';
-import { Prisma } from '@prisma/client';
 
 export type UserCreatePayload = Pick<User, 'name' | 'email'> &
   Partial<Pick<User, 'image' | 'email_verified' | 'callname'>>;
@@ -26,7 +25,6 @@ export interface MeResult {
       name: string;
       slug: string;
       description: string | null;
-      permissions: Prisma.JsonValue;
       is_system: boolean;
     };
     user_id: string;
