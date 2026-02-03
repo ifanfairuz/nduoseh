@@ -1,4 +1,4 @@
-import type { User } from "../models";
+import type { User, Role } from "../models";
 
 export interface IMeResponse {
   data: {
@@ -7,6 +7,7 @@ export interface IMeResponse {
     name: User["name"];
     callname: User["callname"];
     image: User["image"];
+    roles: Pick<Role, "id" | "name" | "slug" | "description" | "is_system">[];
   };
   permissions: string[];
   modules: string[];
@@ -38,3 +39,14 @@ export type IUpdateUserBody = Partial<Omit<ICreateUserBody, "password">>;
 export type IUpdateUserBodyWithImage = IUpdateUserBody & {
   image?: File | null;
 };
+
+// User-Role Assignment Types
+export interface IAssignRoleBody {
+  roleId: string;
+}
+
+export type IGetUserRolesResponse = Role[];
+
+export interface IGetUserPermissionsResponse {
+  permissions: string[];
+}

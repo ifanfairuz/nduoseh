@@ -5,6 +5,7 @@ import {
   PrismaRepository,
 } from 'src/services/prisma/prisma.repository';
 import { createCuid2Generator } from 'src/utils/generator';
+import { MeResult } from './user.repository';
 
 export type AccountCreateWithPasswordPayload = Pick<
   PasswordAccount,
@@ -107,13 +108,28 @@ export class AccountRepository extends PrismaRepository {
             email: true,
             email_verified: true,
             image: true,
+            userRoles: {
+              select: {
+                user_id: true,
+                role_id: true,
+                role: {
+                  select: {
+                    id: true,
+                    name: true,
+                    slug: true,
+                    description: true,
+                    is_system: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
     });
 
     if (result?.password) {
-      return result as PasswordAccount & { user: User };
+      return result as PasswordAccount & { user: MeResult };
     }
 
     return null;
@@ -150,6 +166,21 @@ export class AccountRepository extends PrismaRepository {
             email_verified: true,
             image: true,
             callname: true,
+            userRoles: {
+              select: {
+                user_id: true,
+                role_id: true,
+                role: {
+                  select: {
+                    id: true,
+                    name: true,
+                    slug: true,
+                    description: true,
+                    is_system: true,
+                  },
+                },
+              },
+            },
           },
         },
       },

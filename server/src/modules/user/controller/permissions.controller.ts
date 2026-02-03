@@ -2,7 +2,7 @@ import { Get, HttpCode, Inject, UseGuards } from '@nestjs/common';
 import { ApiController } from 'src/utils/http';
 import { AuthGuard } from '../auth.guard';
 import { PermissionsGuard } from '../guards/permissions.guard';
-import { RequirePermissions } from '../decorators/require-permissions.decorator';
+import { RequirePermissions } from '../decorators/permissions.decorator';
 import { GetAvailablePermissionsUseCase } from '../use-case/permissions/get-available-permissions.use-case';
 
 @ApiController('permissions', { tag: 'Permissions' })

@@ -64,6 +64,7 @@ export class MeController {
       domain,
       res.permissions,
       res.modules,
+      res.roles,
     );
   }
 
@@ -96,6 +97,7 @@ export class MeController {
       domain,
       res.permissions,
       res.modules,
+      res.roles,
     );
   }
 
@@ -137,6 +139,7 @@ export class MeController {
       domain,
       res.permissions,
       res.modules,
+      res.roles,
     );
   }
 }

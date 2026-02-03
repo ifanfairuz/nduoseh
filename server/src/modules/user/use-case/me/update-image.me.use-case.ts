@@ -16,7 +16,7 @@ export class UpdateImageMeUseCase {
     const file = await this.disk.save(image, { mime });
 
     try {
-      const user = await this.user.update(access_token.user_id, {
+      const user = await this.user.updateMe(access_token.user_id, {
         image: file.identifier,
       });
       return await this.userInfo.withUserInfo(user);

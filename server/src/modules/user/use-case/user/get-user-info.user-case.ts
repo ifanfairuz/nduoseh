@@ -1,6 +1,7 @@
-import { User } from '@panah/contract';
+import { LoginResponse, User } from '@panah/contract';
 import { GetUserPermissionsUseCase } from '../user-role/get-user-permissions.use-case';
 import { Inject, Injectable } from '@nestjs/common';
+import { MeResult } from '../../repositories/user.repository';
 
 @Injectable()
 export class GetUserInfoUseCase {
@@ -14,6 +15,7 @@ export class GetUserInfoUseCase {
   async getInfo(user_id: User['id']) {
     const permissions = await this.getUserPermissions.executeAsSet(user_id);
     const modules: string[] = [];
+
     for (const name in this.modules) {
       for (const p of this.modules[name]) {
         if (permissions.has(p)) {
@@ -22,11 +24,18 @@ export class GetUserInfoUseCase {
         }
       }
     }
+
     return { permissions: Array.from(permissions), modules };
   }
 
-  async withUserInfo(user: User) {
+  async withUserInfo(me: MeResult) {
+    const { userRoles, ...user } = me;
     const info = await this.getInfo(user.id);
-    return { ...info, user };
+
+    return {
+      ...info,
+      user,
+      roles: userRoles.map((ur) => ur.role as LoginResponse['roles'][0]),
+    };
   }
 }

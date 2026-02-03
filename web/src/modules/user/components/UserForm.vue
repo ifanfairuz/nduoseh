@@ -98,7 +98,7 @@ const onSubmit = form.handleSubmit(async (data) => {
 </script>
 
 <template>
-  <form @submit="onSubmit" class="p-4">
+  <form @submit="onSubmit">
     <div
       class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 items-start"
     >

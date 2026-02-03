@@ -184,6 +184,7 @@ The application implements a comprehensive role-based access control (RBAC) syst
 **Feature Modules**:
 
 Each feature module follows a consistent pattern:
+
 - `{module}.api.ts`: API client functions (CRUD operations)
 - `components/`: Module-specific components
   - `{Module}Table.vue`: Data table with pagination, sorting, search
@@ -268,6 +269,7 @@ All timestamps use `@db.Timestamptz()` for timezone-aware storage.
 - `DELETE /api/users/:id` - Delete user (soft delete) (requires `users.delete`)
 
 **Pagination & Search Details**:
+
 - Uses offset-based pagination only
 - Results ordered by `created_at` descending
 - Keyword search queries across name, email, and callname fields simultaneously
@@ -283,21 +285,22 @@ All timestamps use `@db.Timestamptz()` for timezone-aware storage.
 
 ### Role Management Endpoints
 
-- `GET /api/roles` - List roles with offset pagination and keyword search (requires `roles.list`)
+- `GET /api/roles` - List roles with offset pagination and keyword search (requires `roles.list` or `users.roles.assign`)
   - Query params:
     - `page` (optional, >= 1, default: 1): page number
-    - `limit` (optional, 1-100, default: 10): items per page
+    - `limit` (optional, 0-100, default: 10): items per page if 0 get all roles without limitation rows
     - `keyword` (optional, max 100 chars): search keyword for name, slug, or description
   - Returns: `OffsetPaginatedResult<Role>` with data array and pagination metadata
   - Response includes `pagination` with `page`, `limit`, `total`, `totalPages`
   - To fetch next page, increment `page` parameter
   - Search is case-insensitive and matches partial strings across name, slug, and description fields
-- `GET /api/roles/:id` - Get role by ID (requires `roles.list`)
+- `GET /api/roles/:id` - Get role by ID (requires `roles.list` or `users.roles.assign`)
 - `POST /api/roles` - Create new role (requires `roles.create`)
 - `PUT /api/roles/:id` - Update role (requires `roles.update`)
 - `DELETE /api/roles/:id` - Delete role (requires `roles.delete`)
 
 **Pagination & Search Details**:
+
 - Uses offset-based pagination only
 - Results ordered by `created_at` descending by default
 - Keyword search queries across name, slug, and description fields simultaneously
@@ -316,9 +319,17 @@ All timestamps use `@db.Timestamptz()` for timezone-aware storage.
 Current permissions exported by `UserModule.permissions`:
 
 ```typescript
-'users.list', 'users.create', 'users.update', 'users.delete',
-'users.roles.list', 'users.roles.assign', 'users.roles.remove',
-'roles.list', 'roles.create', 'roles.update', 'roles.delete'
+("users.list",
+  "users.create",
+  "users.update",
+  "users.delete",
+  "users.roles.list",
+  "users.roles.assign",
+  "users.roles.remove",
+  "roles.list",
+  "roles.create",
+  "roles.update",
+  "roles.delete");
 ```
 
 When adding new modules, add their permissions to the static `permissions` array to register them in `APP_PERMISSIONS`.
@@ -364,6 +375,7 @@ npm test -- --testPathPatterns="list-users"
 ### Test Coverage
 
 Current test coverage includes:
+
 - **ListUsersUseCase** (17 tests): Offset pagination, limit validation, page bounds, total count calculation, keyword search (name/email/callname), case-insensitive search, combined search and pagination
 - **CreateUserUseCase**: User creation, transaction handling, callname defaults
 - **GetUserByIdUseCase**: User retrieval, not found handling
@@ -392,7 +404,7 @@ Current test coverage includes:
    - **Offset Pagination**: Use `OffsetPaginationParams` and `OffsetPaginatedResult<T>` types; validate with Zod; use `count()` and `skip/take` for results; run count and query in parallel with `Promise.all()`
    - User module uses offset pagination exclusively for simplicity and UX consistency
 9. **Implementing Search/Filtering**: Use Prisma `OR` conditions with `contains` and `mode: 'insensitive'` for case-insensitive multi-field search; combine with pagination where clause; validate keyword length (e.g., max 100 chars)
-9. **Writing Tests**: Create `.spec.ts` files alongside use cases; mock dependencies with Jest; write E2E tests for controllers in `test/` directory; use eslint-disable comments for test-specific type safety issues
+10. **Writing Tests**: Create `.spec.ts` files alongside use cases; mock dependencies with Jest; write E2E tests for controllers in `test/` directory; use eslint-disable comments for test-specific type safety issues
 
 **Make sure run lint/npm run format after making changes**
 
@@ -403,6 +415,7 @@ Current test coverage includes:
 Full role management implemented in both server and web workspaces following the user module pattern:
 
 **Server Implementation** (`server/src/modules/user/use-case/role/`):
+
 - `ListRolesUseCase`: Offset pagination with keyword search across name, slug, and description
 - `CreateRoleUseCase`: Create roles with validation
 - `UpdateRoleUseCase`: Update roles (system roles protected)
@@ -411,6 +424,7 @@ Full role management implemented in both server and web workspaces following the
 - Returns `OffsetPaginatedResult<Role>` with pagination metadata
 
 **Web Implementation** (`web/src/modules/role/`):
+
 - `role.api.ts`: API client with CRUD operations for roles and permissions fetching
 - `components/RolesTable.vue`: Data table with offset pagination, sorting, keyword search
 - `components/RoleForm.vue`: Form with **grouped permission checkboxes** (grouped by resource)
@@ -420,6 +434,7 @@ Full role management implemented in both server and web workspaces following the
 - `pages/RoleEdit.vue`: Edit page with data fetching
 
 **Features**:
+
 - **Pagination**: Offset-based pagination (page, limit) with total count
 - **Search**: Case-insensitive keyword search across name, slug, and description
 - **Sorting**: Sortable by id, name, slug, created_at
@@ -435,16 +450,75 @@ Full role management implemented in both server and web workspaces following the
 - **Navigation**: Integrated in Administrator section with Shield icon
 
 **Routes**:
+
 - `/roles` - List roles with pagination
 - `/roles/create` - Create new role
 - `/roles/edit/:id` - Edit existing role
 
 **Contract Types**:
+
 - `contract/role/index.ts`:
   - `ICreateRoleBody`: { name, slug, description?, permissions[] }
   - `IUpdateRoleBody`: { name?, description?, permissions[]?, active? }
 - `contract/permissions/index.ts`:
   - `PermissionGroup`: { resource: string, permissions: string[] }
   - `AvailablePermissionsResponse`: { permissions: string[], groups: PermissionGroup[] }
+
+### User-Role Assignment (Full Stack)
+
+Full user-role assignment functionality implemented for managing user permissions:
+
+**Server Implementation** (already existed):
+
+- `AssignRoleUseCase`: Assigns role to user with duplicate prevention and permission cache invalidation
+- `RemoveRoleUseCase`: Removes role from user with permission cache invalidation
+- `GetUserRolesUseCase`: Fetches all active roles assigned to a user
+- `GetUserPermissionsUseCase`: Aggregates permissions from all user's roles with Redis caching
+- Endpoints: GET/POST/DELETE `/api/users/:userId/roles`, GET `/api/users/:userId/roles/permissions`
+
+**Web Implementation** (`web/src/modules/user/`):
+
+- **API Client** (`user.api.ts`): Added user-role methods
+  - `getUserRoles(userId)`: Fetch user's assigned roles
+  - `getUserPermissions(userId)`: Fetch user's aggregated permissions
+  - `assignRole(userId, roleId)`: Assign role to user
+  - `removeRole(userId, roleId)`: Remove role from user
+- **Component** (`components/UserRolesManager.vue`): Interactive role management UI
+  - Displays current roles as badges with Shield icon
+  - Remove button (X) for each role (protected by `users.roles.remove` permission)
+  - "Add Role" button opens selection dialog (protected by `users.roles.assign` permission)
+  - Role selection dialog with radio buttons showing role details (name, description, permissions count)
+  - Filters out already assigned and inactive roles from selection
+  - Loading states for all operations
+  - Success/error toast notifications
+  - System roles cannot be removed
+- **Integration**: Integrated into `pages/UserEdit.vue` as a separate card below UserForm
+
+**Features**:
+
+- **Permission Control**: users.roles.list, users.roles.assign, users.roles.remove
+- **Real-time Updates**: Uses TanStack Query for automatic data synchronization
+- **Smart Filtering**: Only shows active, non-deleted, unassigned roles in selection
+- **System Role Protection**: System roles display without remove button
+- **User Experience**:
+  - Radio selection for single role assignment
+  - Visual feedback with loading spinners
+  - Toast notifications for success/error
+  - Disabled state when no roles available
+- **Responsive Design**: Card layout with proper spacing and mobile-friendly interface
+
+**Contract Types**:
+
+- `contract/user/index.ts`:
+  - `IAssignRoleBody`: { roleId: string }
+  - `IGetUserRolesResponse`: { data: Role[] }
+  - `IGetUserPermissionsResponse`: { permissions: string[] }
+
+**Usage**:
+The UserRolesManager component is automatically displayed on the user edit page (`/users/edit/:id`). Users with appropriate permissions can:
+
+1. View all assigned roles for a user
+2. Add new roles by clicking "Add Role" and selecting from available active roles
+3. Remove roles by clicking the X button on each role badge (except system roles)
 
 **UPDATE CLAUDE.md AFTER MAKE CHANGE**

@@ -81,6 +81,9 @@ export const useAuthStore = defineStore("auth", {
     permissions: (state) => {
       return state.user?.permissions;
     },
+    isSuperAdmin: (state) => {
+      return !!state.user?.data.roles.some((r) => r.slug == "superadmin");
+    },
   },
 
   actions: {

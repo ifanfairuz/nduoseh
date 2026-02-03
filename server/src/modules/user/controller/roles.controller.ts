@@ -15,7 +15,10 @@ import { Validation } from 'src/utils/validation';
 import z from 'zod';
 import { AuthGuard } from '../auth.guard';
 import { PermissionsGuard } from '../guards/permissions.guard';
-import { RequirePermissions } from '../decorators/require-permissions.decorator';
+import {
+  RequirePermissions,
+  SomePermissions,
+} from '../decorators/permissions.decorator';
 import { CreateRoleUseCase } from '../use-case/role/create-role.use-case';
 import { UpdateRoleUseCase } from '../use-case/role/update-role.use-case';
 import { DeleteRoleUseCase } from '../use-case/role/delete-role.use-case';
@@ -73,7 +76,7 @@ export class RolesController {
    */
   @Get()
   @HttpCode(200)
-  @RequirePermissions('roles.list')
+  @SomePermissions('roles.list', 'users.roles.assign')
   @Validation(ListRolesQuery, 'query')
   async list(@Query() query: ListRolesQuery) {
     return this.listRoles.execute(query);
@@ -84,7 +87,7 @@ export class RolesController {
    */
   @Get(':id')
   @HttpCode(200)
-  @RequirePermissions('roles.list')
+  @SomePermissions('roles.list', 'users.roles.assign')
   async getById(@Param('id') id: string) {
     return this.getRoleById.execute(id);
   }

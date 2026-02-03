@@ -2,9 +2,13 @@ import http from "@/api/http";
 import type { QueryTableContext } from "@/components/datatable";
 import type {
   User,
+  Role,
   OffsetPaginatedResult,
   IUpdateUserBodyWithImage,
   ICreateUserBodyWithImage,
+  IAssignRoleBody,
+  IGetUserRolesResponse,
+  IGetUserPermissionsResponse,
 } from "@panah/contract";
 
 export async function getUsers(
@@ -53,4 +57,35 @@ export async function updateUser(
     },
   });
   return res.data;
+}
+
+// User-Role Assignment API
+export async function getUserRoles(userId: User["id"]): Promise<Role[]> {
+  const res = await http.get<IGetUserRolesResponse>(`/users/${userId}/roles`);
+  return res.data ?? [];
+}
+
+export async function getUserPermissions(
+  userId: User["id"],
+): Promise<string[]> {
+  const res = await http.get<IGetUserPermissionsResponse>(
+    `/users/${userId}/roles/permissions`,
+  );
+  return res.data.permissions;
+}
+
+export async function assignRole(
+  userId: User["id"],
+  roleId: Role["id"],
+): Promise<void> {
+  await http.post<void>(`/users/${userId}/roles`, {
+    roleId,
+  } as IAssignRoleBody);
+}
+
+export async function removeRole(
+  userId: User["id"],
+  roleId: Role["id"],
+): Promise<void> {
+  await http.delete<void>(`/users/${userId}/roles/${roleId}`);
 }

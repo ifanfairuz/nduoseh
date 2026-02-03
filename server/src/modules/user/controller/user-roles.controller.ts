@@ -13,7 +13,7 @@ import { Validation } from 'src/utils/validation';
 import z from 'zod';
 import { AuthGuard } from '../auth.guard';
 import { PermissionsGuard } from '../guards/permissions.guard';
-import { RequirePermissions } from '../decorators/require-permissions.decorator';
+import { RequirePermissions } from '../decorators/permissions.decorator';
 import { AssignRoleUseCase } from '../use-case/user-role/assign-role.use-case';
 import { RemoveRoleUseCase } from '../use-case/user-role/remove-role.use-case';
 import { GetUserRolesUseCase } from '../use-case/user-role/get-user-roles.use-case';

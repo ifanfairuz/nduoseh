@@ -35,6 +35,7 @@ export class AuthResponse implements IAuthResponse {
       domain,
       payload.permissions,
       payload.modules,
+      payload.roles,
     );
     return response;
   }

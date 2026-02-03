@@ -1,4 +1,4 @@
-import type { User } from "../models";
+import type { Role, User } from "../models";
 import type { IMeResponse } from "../user";
 
 export interface ClientInfo {
@@ -18,6 +18,7 @@ export interface LoginResponse {
   permissions: string[];
   modules: string[];
   user: User;
+  roles: Pick<Role, "id" | "name" | "slug" | "description" | "is_system">[];
 }
 
 export interface IAuthResponse {

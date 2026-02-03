@@ -1,4 +1,4 @@
-import type { User, IMeResponse } from '@panah/contract';
+import type { User, IMeResponse, LoginResponse } from '@panah/contract';
 import { UserImageDisk } from '../storage/user-image.disk';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -32,6 +32,7 @@ export class MeResponse implements IMeResponse {
     payload: User,
     permissions: string[] = [],
     modules: string[] = [],
+    roles: LoginResponse['roles'] = [],
   ) {
     this.modules = modules;
     this.permissions = permissions;
@@ -41,6 +42,7 @@ export class MeResponse implements IMeResponse {
       name: payload.name,
       callname: payload.callname,
       image: payload.image,
+      roles: roles,
     };
   }
 
@@ -50,6 +52,7 @@ export class MeResponse implements IMeResponse {
     domain?: string,
     permissions: string[] = [],
     modules: string[] = [],
+    roles: LoginResponse['roles'] = [],
   ) {
     const image = payload.image ? await storage.get(payload.image) : null;
     return new MeResponse(
@@ -59,6 +62,7 @@ export class MeResponse implements IMeResponse {
       },
       permissions,
       modules,
+      roles,
     );
   }
 }

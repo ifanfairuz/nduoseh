@@ -1,8 +1,9 @@
-import { AuthSession, User } from '@panah/contract';
+import { AuthSession } from '@panah/contract';
+import { MeResult } from '../repositories/user.repository';
 
 export class OnUserLogin {
   constructor(
     public readonly session: AuthSession,
-    public readonly user: User,
+    public readonly user: MeResult,
   ) {}
 }

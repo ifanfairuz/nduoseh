@@ -11,7 +11,7 @@ export class UpdateMeUseCase {
   ) {}
 
   async execute(access_token: VerifiedToken, payload: IUpdateMeBody) {
-    const user = await this.user.update(access_token.user_id, {
+    const user = await this.user.updateMe(access_token.user_id, {
       email: payload.email,
       callname: payload.callname,
       name: payload.name,

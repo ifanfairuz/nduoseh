@@ -57,9 +57,9 @@ export class UserRoleRepository extends PrismaRepository {
   }
 
   async findUserRoles(userId: string, options?: PrismaMethodOptions) {
-    return await this._client(options).userRole.findMany({
+    const res = await this._client(options).userRole.findMany({
       where: { user_id: userId, role: { deleted_at: null, active: true } },
-      include: {
+      select: {
         role: {
           select: {
             id: true,
@@ -72,6 +72,8 @@ export class UserRoleRepository extends PrismaRepository {
         },
       },
     });
+
+    return res.map((r) => r.role);
   }
 
   async getUserPermissions(
@@ -83,7 +85,7 @@ export class UserRoleRepository extends PrismaRepository {
     // Flatten and deduplicate permissions from all roles
     const permissions = new Set<string>();
     userRoles.forEach((ur) => {
-      const perms = ur.role.permissions as string[] | undefined;
+      const perms = ur.permissions as string[] | undefined;
       const rolePermissions = Array.isArray(perms) ? perms : [];
       rolePermissions.forEach((perm) => permissions.add(perm));
     });

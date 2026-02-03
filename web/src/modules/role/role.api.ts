@@ -11,6 +11,7 @@ export async function getRoles(): Promise<OffsetPaginatedResult<Role>> {
   const res = await http.get<OffsetPaginatedResult<Role>>("/roles", {
     params: {
       limit: 0,
+      sort: ["is_system", "asc"],
     },
   });
   return res.data;

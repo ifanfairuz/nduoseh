@@ -21,7 +21,7 @@ export class GetMeUseCase {
       token = access_token;
     }
 
-    const user = await this.user.findById(token.user_id);
+    const user = await this.user.findMeById(token.user_id);
     if (user) {
       return await this.userInfo.withUserInfo(user);
     }
