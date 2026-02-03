@@ -177,9 +177,22 @@ The application implements a comprehensive role-based access control (RBAC) syst
 - `components/`: Shared components including Reka UI component library in `components/ui/`
 - `pages/`: Route-specific page components
 - `layouts/`: Layout wrappers (e.g., `DashboardLayout.vue`)
-- `modules/`: Feature modules (e.g., `modules/user/`)
+- `modules/`: Feature modules (e.g., `modules/user/`, `modules/role/`)
 - `api/`: API client layer
 - `lib/`: Shared utilities
+
+**Feature Modules**:
+
+Each feature module follows a consistent pattern:
+- `{module}.api.ts`: API client functions (CRUD operations)
+- `components/`: Module-specific components
+  - `{Module}Table.vue`: Data table with pagination, sorting, search
+  - `{Module}Form.vue`: Generic create/update form with validation
+  - `{Module}RowAction.vue`: Table row actions (edit, delete)
+- `pages/`: Route pages
+  - `{Module}List.vue`: List page with table and create button
+  - `{Module}Create.vue`: Create page wrapper
+  - `{Module}Edit.vue`: Edit page wrapper with data fetching
 
 **Styling**: TailwindCSS v4 with custom animations via `tw-animate-css`
 
@@ -187,7 +200,7 @@ The application implements a comprehensive role-based access control (RBAC) syst
 
 Shared TypeScript types exported from `contract/index.ts`:
 
-- Type-only exports for models, auth, user, and pagination domains
+- Type-only exports for models, auth, user, role, permissions, and pagination domains
 - **Pagination Types**:
   - **Cursor Pagination** (for real-time data, infinite scrolling):
     - `PaginatedResult<T>`: Generic pagination response with data and pageInfo
@@ -261,13 +274,35 @@ All timestamps use `@db.Timestamptz()` for timezone-aware storage.
 - Search is case-insensitive using PostgreSQL `ilike` comparison
 - Combines pagination and search seamlessly
 
+### Permissions Endpoints
+
+- `GET /api/permissions` - Get all available permissions (requires `roles.list`)
+  - Returns: `{ permissions: string[], groups: PermissionGroup[] }`
+  - Permissions are grouped by resource (e.g., "users", "roles")
+  - Used for displaying checkboxes in role form
+
 ### Role Management Endpoints
 
-- `GET /api/roles` - List all roles (requires `roles.list`)
+- `GET /api/roles` - List roles with offset pagination and keyword search (requires `roles.list`)
+  - Query params:
+    - `page` (optional, >= 1, default: 1): page number
+    - `limit` (optional, 1-100, default: 10): items per page
+    - `keyword` (optional, max 100 chars): search keyword for name, slug, or description
+  - Returns: `OffsetPaginatedResult<Role>` with data array and pagination metadata
+  - Response includes `pagination` with `page`, `limit`, `total`, `totalPages`
+  - To fetch next page, increment `page` parameter
+  - Search is case-insensitive and matches partial strings across name, slug, and description fields
 - `GET /api/roles/:id` - Get role by ID (requires `roles.list`)
 - `POST /api/roles` - Create new role (requires `roles.create`)
 - `PUT /api/roles/:id` - Update role (requires `roles.update`)
 - `DELETE /api/roles/:id` - Delete role (requires `roles.delete`)
+
+**Pagination & Search Details**:
+- Uses offset-based pagination only
+- Results ordered by `created_at` descending by default
+- Keyword search queries across name, slug, and description fields simultaneously
+- Search is case-insensitive using PostgreSQL `ilike` comparison
+- Combines pagination and search seamlessly
 
 ### User-Role Assignment Endpoints
 
@@ -341,7 +376,14 @@ Current test coverage includes:
 1. **Adding New Modules**: Create module in `src/modules/{name}/`, add to `LoaderModule._mapModules()` map, define module config type, implement `configure()` static method, add static `permissions` array
 2. **Adding Use Cases**: Create in `use-case/{subdomain}/` with clear single responsibility, inject repositories/services via constructor
 3. **Adding Storage Disks**: Extend `Disk` class, register in `LoaderModule.configure()` via `LocalStorageModule.registerServer()`
-4. **Frontend Modules**: Create in `web/src/modules/{name}/` with components, pages, and routes
+4. **Frontend Modules**:
+   - Create module directory: `web/src/modules/{name}/`
+   - Create API client: `{name}.api.ts` with CRUD functions (get, list, create, update, delete)
+   - Create components: `{Name}Table.vue`, `{Name}Form.vue`, `{Name}RowAction.vue`
+   - Create pages: `{Name}List.vue`, `{Name}Create.vue`, `{Name}Edit.vue`
+   - Add routes to `web/src/router.ts` with permissions and breadcrumbs
+   - Add navigation item to `web/src/components/NavMain.vue` wrapped in `<PermissionScope>`
+   - Example modules: `user`, `role`
 5. **Shared Types**: Add to `contract/` workspace and export from `index.ts` for cross-workspace type safety
 6. **Protecting Endpoints**: Use `@RequirePermissions()` or `@RequireRoles()` decorators with `PermissionsGuard` or `RolesGuard`, always apply `AuthGuard` first
 7. **Adding Permissions**: Add to module's static `permissions` array, use `resource.action` naming (e.g., `products.create`), permissions automatically registered in `APP_PERMISSIONS`
@@ -353,5 +395,56 @@ Current test coverage includes:
 9. **Writing Tests**: Create `.spec.ts` files alongside use cases; mock dependencies with Jest; write E2E tests for controllers in `test/` directory; use eslint-disable comments for test-specific type safety issues
 
 **Make sure run lint/npm run format after making changes**
+
+## Implemented Features
+
+### Role Management (Full Stack)
+
+Full role management implemented in both server and web workspaces following the user module pattern:
+
+**Server Implementation** (`server/src/modules/user/use-case/role/`):
+- `ListRolesUseCase`: Offset pagination with keyword search across name, slug, and description
+- `CreateRoleUseCase`: Create roles with validation
+- `UpdateRoleUseCase`: Update roles (system roles protected)
+- `DeleteRoleUseCase`: Soft delete roles
+- `GetRoleByIdUseCase`: Retrieve single role
+- Returns `OffsetPaginatedResult<Role>` with pagination metadata
+
+**Web Implementation** (`web/src/modules/role/`):
+- `role.api.ts`: API client with CRUD operations for roles and permissions fetching
+- `components/RolesTable.vue`: Data table with offset pagination, sorting, keyword search
+- `components/RoleForm.vue`: Form with **grouped permission checkboxes** (grouped by resource)
+- `components/RolesRowAction.vue`: Edit/delete actions (system roles cannot be deleted)
+- `pages/RolesList.vue`: List page with create button
+- `pages/RoleCreate.vue`: Create page with redirect to list on success
+- `pages/RoleEdit.vue`: Edit page with data fetching
+
+**Features**:
+- **Pagination**: Offset-based pagination (page, limit) with total count
+- **Search**: Case-insensitive keyword search across name, slug, and description
+- **Sorting**: Sortable by id, name, slug, created_at
+- **Permission Control**: roles.list, roles.create, roles.update, roles.delete
+- **Permission Selection UI**: Grouped checkboxes organized by resource context
+  - Permissions grouped by resource (users, roles, etc.)
+  - Select/deselect entire groups or individual permissions
+  - Indeterminate state for partially selected groups
+  - Fetches available permissions from `/api/permissions` endpoint
+- **System Role Protection**: Cannot edit/delete system roles
+- **Status Management**: Active/inactive toggle (inactive roles cannot be assigned)
+- **Soft Delete**: With undo functionality
+- **Navigation**: Integrated in Administrator section with Shield icon
+
+**Routes**:
+- `/roles` - List roles with pagination
+- `/roles/create` - Create new role
+- `/roles/edit/:id` - Edit existing role
+
+**Contract Types**:
+- `contract/role/index.ts`:
+  - `ICreateRoleBody`: { name, slug, description?, permissions[] }
+  - `IUpdateRoleBody`: { name?, description?, permissions[]?, active? }
+- `contract/permissions/index.ts`:
+  - `PermissionGroup`: { resource: string, permissions: string[] }
+  - `AvailablePermissionsResponse`: { permissions: string[], groups: PermissionGroup[] }
 
 **UPDATE CLAUDE.md AFTER MAKE CHANGE**

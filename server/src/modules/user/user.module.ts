@@ -60,9 +60,11 @@ import { GetUserPermissionsUseCase } from './use-case/user-role/get-user-permiss
 import { UsersController } from './controller/users.controller';
 import { RolesController } from './controller/roles.controller';
 import { UserRolesController } from './controller/user-roles.controller';
+import { PermissionsController } from './controller/permissions.controller';
 import { PermissionsGuard } from './guards/permissions.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { GetUserInfoUseCase } from './use-case/user/get-user-info.user-case';
+import { GetAvailablePermissionsUseCase } from './use-case/permissions/get-available-permissions.use-case';
 
 function genMetadata(config: UserConfig): ModuleMetadata {
   const verifyTokenProvider: Provider = {
@@ -133,6 +135,9 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       GetUserRolesUseCase,
       GetUserPermissionsUseCase,
 
+      // permissions use-cases
+      GetAvailablePermissionsUseCase,
+
       // guards
       PermissionsGuard,
       RolesGuard,
@@ -173,6 +178,7 @@ function genMetadata(config: UserConfig): ModuleMetadata {
       UsersController,
       RolesController,
       UserRolesController,
+      PermissionsController,
     ],
   };
 }

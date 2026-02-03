@@ -61,6 +61,39 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: "/roles",
+        name: "roles.list",
+        component: () => import("./modules/role/pages/RolesList.vue"),
+        meta: {
+          permissions: ["roles.list"],
+          breadcrumbs: [{ name: "Roles", target: { name: "roles.list" } }],
+        },
+      },
+      {
+        path: "/roles/create",
+        name: "roles.create",
+        component: () => import("./modules/role/pages/RoleCreate.vue"),
+        meta: {
+          permissions: ["roles.create"],
+          breadcrumbs: [
+            { name: "Roles", target: { name: "roles.list" } },
+            { name: "Create", target: { name: "roles.create" } },
+          ],
+        },
+      },
+      {
+        path: "/roles/edit/:id",
+        name: "roles.edit",
+        component: () => import("./modules/role/pages/RoleEdit.vue"),
+        meta: {
+          permissions: ["roles.update"],
+          breadcrumbs: [
+            { name: "Roles", target: { name: "roles.list" } },
+            { name: "Edit", target: { name: "roles.edit" } },
+          ],
+        },
+      },
+      {
         path: "/profile/edit",
         name: "profile.edit",
         component: () => import("./pages/profile/ProfileEdit.vue"),

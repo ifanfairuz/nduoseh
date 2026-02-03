@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LayoutDashboard, Users } from "lucide-vue-next";
+import { LayoutDashboard, Users, Shield } from "lucide-vue-next";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -33,6 +33,16 @@ import PermissionScope from "./PermissionScope.vue";
               <router-link :to="{ name: 'users.list' }">
                 <Users />
                 <span>User</span>
+              </router-link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </PermissionScope>
+        <PermissionScope if="roles.list">
+          <SidebarMenuItem>
+            <SidebarMenuButton as-child>
+              <router-link :to="{ name: 'roles.list' }">
+                <Shield />
+                <span>Role</span>
               </router-link>
             </SidebarMenuButton>
           </SidebarMenuItem>
