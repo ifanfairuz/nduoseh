@@ -1,5 +1,4 @@
 import http from "@/api/http";
-import type { QueryTableContext } from "@/components/datatable";
 import type {
   Role,
   ICreateRoleBody,
@@ -8,15 +7,10 @@ import type {
   AvailablePermissionsResponse,
 } from "@panah/contract";
 
-export async function getRoles(
-  ctx?: QueryTableContext,
-): Promise<OffsetPaginatedResult<Role>> {
+export async function getRoles(): Promise<OffsetPaginatedResult<Role>> {
   const res = await http.get<OffsetPaginatedResult<Role>>("/roles", {
     params: {
-      limit: ctx?.pagination?.limit,
-      page: ctx?.pagination?.page,
-      sort: ctx?.sort,
-      keyword: ctx?.keyword,
+      limit: 0,
     },
   });
   return res.data;

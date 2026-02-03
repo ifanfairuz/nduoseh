@@ -17,6 +17,7 @@ const props = withDefaults(
   defineProps<{
     columns: ColumnDef<TData, TValue>[];
     query: QueryTableQuery<R>;
+    clientProcess?: boolean;
     pagination?: boolean;
     sort?: boolean;
     state?: QueryTableState;
@@ -78,7 +79,9 @@ const onSearchChange = (keyword: string) => {
   <DataTable
     :columns="columns"
     :data="data"
-    :manual-pagination="!!pagination"
+    :manual-pagination="!clientProcess"
+    :manual-sorting="!clientProcess"
+    :manual-filtering="!clientProcess"
     :pagination="pagination"
     :sort="sort"
     :search="keyword"

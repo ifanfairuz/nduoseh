@@ -1,22 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import type { Role } from "@panah/contract";
-import type { ColumnDef, SortingState } from "@tanstack/vue-table";
+import type { ColumnDef } from "@tanstack/vue-table";
 import {
   keepPreviousData,
   useQuery,
   useQueryClient,
 } from "@tanstack/vue-query";
 import QueryTable from "@/components/datatable/QueryTable.vue";
-import {
-  toSortQueries,
-  type DataTablePagination,
-  type QueryTableState,
-} from "@/components/datatable";
 import { getRoles } from "../role.api";
-import { useRoute } from "vue-router";
-import { updateQueryParam } from "@/lib/utils";
-import { useDebounceFn } from "@vueuse/core";
 import { h } from "vue";
 import RolesRowAction from "./RolesRowAction.vue";
 import { useHasPermission } from "@/stores/auth.store";
@@ -55,7 +47,9 @@ const _columns: ColumnDef<Role, Role>[] = [
     id: "permissions",
     accessorKey: "permissions",
     header: "Permissions",
-    enableSorting: false,
+    sortingFn: (a, b, _) => {
+      return a.original.permissions.length - b.original.permissions.length;
+    },
     cell: ({ row }) =>
       h(Badge, { variant: "secondary" }, () => row.original.permissions.length),
   },
@@ -99,74 +93,24 @@ const columns = computed(() => {
   ];
 });
 
-const route = useRoute();
-const q_keyword = route.query.roles_keyword
-  ? `${route.query.roles_keyword}`
-  : undefined;
-
-const state = ref<QueryTableState>({
-  limit: 10,
-  page: 1,
-  keyword: q_keyword,
-  sort: [{ id: "name", desc: false }],
-});
-
 const client = useQueryClient();
 const query = useQuery(
   {
-    queryKey: ["roles", state],
+    queryKey: ["roles"],
     placeholderData: keepPreviousData,
-    queryFn: async () => {
-      updateQueryParam(
-        {
-          ...route.query,
-          roles_keyword: state.value.keyword?.toString(),
-        },
-        true,
-      );
-
-      return await getRoles({
-        sort: toSortQueries(state.value.sort),
-        keyword: state.value.keyword,
-      });
-    },
+    queryFn: getRoles,
   },
   client,
 );
-
-const onPageChange = (query: DataTablePagination) => {
-  state.value = {
-    ...state.value,
-    ...query,
-  };
-};
-
-const onSortChange = (sort: SortingState) => {
-  state.value = {
-    ...state.value,
-    sort,
-  };
-};
-
-const onSearch = useDebounceFn((keyword: string) => {
-  state.value = {
-    ...state.value,
-    keyword,
-    page: 1,
-  };
-}, 400);
 </script>
 
 <template>
   <div class="container py-4 mx-auto">
     <QueryTable
+      client-process
       query-key="roles"
       :columns="columns"
       :query="query"
-      :state="state"
-      @page-change="onPageChange"
-      @sort-change="onSortChange"
-      @search="onSearch"
     />
   </div>
 </template>

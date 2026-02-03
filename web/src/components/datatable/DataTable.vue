@@ -2,10 +2,18 @@
 import { computed, ref } from "vue";
 import type {
   ColumnDef,
+  PaginationState,
   SortingState,
   VisibilityState,
 } from "@tanstack/vue-table";
-import { FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
+import {
+  FlexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useVueTable,
+} from "@tanstack/vue-table";
 
 import {
   Table,
@@ -64,12 +72,16 @@ const props = withDefaults(
     error?: string;
     limitOptions?: number[];
     manualPagination?: boolean;
+    manualSorting?: boolean;
+    manualFiltering?: boolean;
   }>(),
   {
     pending: false,
     fetching: false,
     isError: false,
-    manualPagination: true,
+    manualPagination: false,
+    manualSorting: false,
+    manualFiltering: false,
     limitOptions: () => [10, 20, 50, 100],
   },
 );
@@ -81,6 +93,25 @@ const emits = defineEmits<{
 }>();
 
 const colVisibility = ref<VisibilityState>({});
+const sorting = ref<SortingState>([]);
+const sortable = computed(() => (props.manualSorting ? !!props.sort : true));
+const filtering = ref<string>("");
+const paginationState = ref<PaginationState>({
+  pageIndex: 0,
+  pageSize: 10,
+});
+const pagination = computed(() => {
+  if (props.manualPagination) {
+    return props.pagination;
+  }
+
+  return {
+    totalPages: Math.ceil(props.data.length / paginationState.value.pageSize),
+    total: props.data.length,
+    limit: paginationState.value.pageSize,
+    page: paginationState.value.pageIndex + 1,
+  };
+});
 const table = useVueTable({
   get data() {
     return props.data;
@@ -93,56 +124,107 @@ const table = useVueTable({
       return colVisibility.value;
     },
     get sorting() {
-      return props.sort;
+      return props.manualSorting ? props.sort : sorting.value;
     },
     get globalFilter() {
-      return props.search;
+      return props.manualFiltering ? props.search : filtering.value;
     },
+    get pagination() {
+      return props.manualPagination ? undefined : paginationState.value;
+    },
+  },
+  get manualPagination() {
+    return props.manualPagination;
+  },
+  get manualSorting() {
+    return props.manualSorting;
+  },
+  get manualFiltering() {
+    return props.manualFiltering;
   },
   enableGlobalFilter: true,
   enableMultiSort: true,
   isMultiSortEvent: (_) => true,
   getCoreRowModel: getCoreRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+  getPaginationRowModel: getPaginationRowModel(),
+  getFilteredRowModel: getFilteredRowModel(),
   onColumnVisibilityChange: (v) => {
     colVisibility.value = typeof v === "function" ? v(colVisibility.value) : v;
   },
   onSortingChange: (v) => {
-    const state = typeof v === "function" ? v(props.sort ?? []) : v;
-    emits("onSortChange", state);
+    if (props.manualSorting) {
+      const state = typeof v === "function" ? v(props.sort ?? []) : v;
+      emits("onSortChange", state);
+      return;
+    }
+
+    sorting.value = typeof v === "function" ? v(sorting.value) : v;
   },
   onGlobalFilterChange: (v) => {
-    const state = typeof v === "function" ? v(props.search ?? "") : v;
-    emits("onSearchChange", state);
+    if (props.manualFiltering) {
+      const state = typeof v === "function" ? v(props.search ?? "") : v;
+      emits("onSearchChange", state);
+      return;
+    }
+
+    filtering.value = typeof v === "function" ? v(filtering.value) : v;
   },
 });
 
 const setPage = (page: number) => {
-  emits("onPaginationChange", {
-    totalPages: props.pagination?.totalPages ?? 1,
-    total: props.pagination?.total ?? 0,
-    limit: props.pagination?.limit ?? 10,
-    page: page,
-  });
+  if (props.manualPagination) {
+    emits("onPaginationChange", {
+      totalPages: props.pagination?.totalPages ?? 1,
+      total: props.pagination?.total ?? 0,
+      limit: props.pagination?.limit ?? 10,
+      page: page,
+    });
+    return;
+  }
+
+  paginationState.value = {
+    ...paginationState.value,
+    pageIndex: page - 1,
+  };
 };
 
 const setLimit = (limit: number) => {
-  emits("onPaginationChange", {
-    totalPages: props.pagination?.totalPages ?? 1,
-    total: props.pagination?.total ?? 0,
-    limit: limit,
-    page: props.pagination?.page ?? 1,
-  });
+  if (props.manualPagination) {
+    emits("onPaginationChange", {
+      totalPages: props.pagination?.totalPages ?? 1,
+      total: props.pagination?.total ?? 0,
+      limit: limit,
+      page: props.pagination?.page ?? 1,
+    });
+    return;
+  }
+
+  paginationState.value = {
+    ...paginationState.value,
+    pageSize: limit,
+  };
 };
 
 const formatter = new Intl.NumberFormat();
 const info = computed(() => {
-  if (!props.pagination) return null;
+  let _pagination: DataTablePagination | undefined;
+  let _showedRows = 0;
+  if (props.manualPagination) {
+    _pagination = props.pagination;
+    _showedRows = props.data.length;
+  } else {
+    _pagination = pagination.value;
+    _showedRows = table.getSortedRowModel().rows.length;
+  }
+  if (!_pagination) return null;
 
-  const start = props.pagination.limit * (props.pagination.page - 1);
+  const end = _pagination.page * _showedRows;
+  const start = _showedRows == 0 ? 0 : end - _showedRows + 1;
   return {
-    start: formatter.format(start + 1),
-    end: formatter.format(start + props.data.length),
-    total: formatter.format(props.pagination.total),
+    start: formatter.format(start),
+    end: formatter.format(end),
+    total: formatter.format(_pagination.total),
   };
 });
 </script>
@@ -231,7 +313,7 @@ const info = computed(() => {
               <Th
                 v-if="!header.isPlaceholder"
                 :ctx="header.getContext()"
-                :sortable="!!props.sort"
+                :sortable="sortable"
                 v-slot="{ ctx }"
               >
                 <FlexRender

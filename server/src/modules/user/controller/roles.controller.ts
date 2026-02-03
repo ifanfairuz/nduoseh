@@ -32,7 +32,7 @@ const ListRolesQuery = z.object({
   limit: z.coerce
     .number()
     .int()
-    .min(1, 'Limit must be at least 1')
+    .min(0, 'Limit must be at least 0')
     .max(100, 'Limit cannot exceed 100')
     .optional(),
   keyword: z.string().max(100, 'Keyword too long').optional(),

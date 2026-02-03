@@ -20,42 +20,6 @@ export class ListRolesUseCase {
   ): Promise<OffsetPaginatedResult<Role>> {
     const { page = 1, limit = 10, keyword, sort } = params;
 
-    // Ensure limit is within bounds (1-100)
-    const take = Math.min(Math.max(limit, 1), 100);
-
-    // Ensure page is at least 1
-    const currentPage = Math.max(page, 1);
-
-    // Calculate skip
-    const skip = (currentPage - 1) * take;
-
-    // Build where clause with keyword search
-    const where = {
-      deleted_at: null,
-      ...(keyword && {
-        OR: [
-          {
-            name: {
-              contains: keyword,
-              mode: 'insensitive' as const,
-            },
-          },
-          {
-            slug: {
-              contains: keyword,
-              mode: 'insensitive' as const,
-            },
-          },
-          {
-            description: {
-              contains: keyword,
-              mode: 'insensitive' as const,
-            },
-          },
-        ],
-      }),
-    };
-
     // Build order by
     let orderBy: Prisma.RoleOrderByWithRelationInput[] = [
       {
@@ -66,11 +30,58 @@ export class ListRolesUseCase {
       orderBy = fromQueries(sort, ['id', 'name', 'slug', 'created_at']);
     }
 
+    let take: number | undefined;
+    let currentPage: number | undefined;
+    let skip: number | undefined;
+    let where: Prisma.RoleWhereInput | undefined;
+
+    if (limit > 0) {
+      // Ensure limit is within bounds (1-100)
+      take = Math.min(Math.max(limit, 1), 100);
+      // Ensure page is at least 1
+      currentPage = Math.max(page, 1);
+      // Calculate skip
+      skip = (currentPage - 1) * take;
+
+      // Build where clause with keyword search
+      where = {
+        deleted_at: null,
+        ...(keyword && {
+          OR: [
+            {
+              name: {
+                contains: keyword,
+                mode: 'insensitive' as const,
+              },
+            },
+            {
+              slug: {
+                contains: keyword,
+                mode: 'insensitive' as const,
+              },
+            },
+            {
+              description: {
+                contains: keyword,
+                mode: 'insensitive' as const,
+              },
+            },
+          ],
+        }),
+      };
+    }
+
     // Get total count and roles in parallel
     const [total, roles] = await Promise.all([
-      this.prisma.role.count({
-        where,
-      }),
+      (async () => {
+        if (limit > 0) {
+          return await this.prisma.role.count({
+            where,
+          });
+        }
+
+        return 0;
+      })(),
       this.prisma.role.findMany({
         select: {
           id: true,
@@ -91,13 +102,14 @@ export class ListRolesUseCase {
     ]);
 
     // Calculate total pages
-    const totalPages = Math.ceil(total / take);
+    const totalPages =
+      typeof take !== 'undefined' ? Math.ceil(total / take) : roles.length;
 
     return {
       data: roles as Role[],
       pagination: {
-        page: currentPage,
-        limit: take,
+        page: currentPage ?? 1,
+        limit: take ?? totalPages,
         total,
         totalPages,
       },
