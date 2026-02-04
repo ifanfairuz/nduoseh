@@ -1,12 +1,19 @@
 /* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { UpdateUserUseCase } from './update-user.use-case';
 import { UserRepository } from '../../repositories/user.repository';
+import { PrismaAtomicService } from 'src/services/prisma/atomic.service';
+import { UserImageDisk } from '../../storage/user-image.disk';
+import { AccountRepository } from '../../repositories/account.repository';
+import { HashService } from 'src/services/cipher/hash.service';
 
 describe('UpdateUserUseCase', () => {
   let useCase: UpdateUserUseCase;
   let userRepository: UserRepository;
+  let atomic: PrismaAtomicService;
 
   const mockUser = {
     id: 'user-1',
@@ -24,10 +31,40 @@ describe('UpdateUserUseCase', () => {
       providers: [
         UpdateUserUseCase,
         {
+          provide: PrismaAtomicService,
+          useValue: {
+            tx: jest
+              .fn()
+              .mockImplementation((callback: (tx: unknown) => unknown) =>
+                callback({}),
+              ),
+          },
+        },
+        {
           provide: UserRepository,
           useValue: {
             findById: jest.fn(),
             update: jest.fn(),
+          },
+        },
+        {
+          provide: AccountRepository,
+          useValue: {
+            updatePasswordAccount: jest.fn(),
+          },
+        },
+        {
+          provide: UserImageDisk,
+          useValue: {
+            get: jest.fn(),
+            save: jest.fn(),
+            delete: jest.fn(),
+          },
+        },
+        {
+          provide: HashService,
+          useValue: {
+            hash: jest.fn(),
           },
         },
       ],
@@ -35,6 +72,7 @@ describe('UpdateUserUseCase', () => {
 
     useCase = module.get<UpdateUserUseCase>(UpdateUserUseCase);
     userRepository = module.get<UserRepository>(UserRepository);
+    atomic = module.get<PrismaAtomicService>(PrismaAtomicService);
   });
 
   it('should be defined', () => {
@@ -51,19 +89,27 @@ describe('UpdateUserUseCase', () => {
       };
 
       const updatedUser = { ...mockUser, ...updateData };
+      const mockTx: any = {};
 
       jest.spyOn(userRepository, 'findById').mockResolvedValue(mockUser);
+      jest
+        .spyOn(atomic, 'tx')
+        .mockImplementation((callback) => callback(mockTx));
       jest.spyOn(userRepository, 'update').mockResolvedValue(updatedUser);
 
       const result = await useCase.execute(updateData);
 
       expect(userRepository.findById).toHaveBeenCalledWith('user-1');
-      expect(userRepository.update).toHaveBeenCalledWith('user-1', {
-        name: updateData.name,
-        email: updateData.email,
-        callname: updateData.callname,
-      });
-      expect(result).toEqual(updatedUser);
+      expect(userRepository.update).toHaveBeenCalledWith(
+        'user-1',
+        {
+          name: updateData.name,
+          email: updateData.email,
+          callname: updateData.callname,
+        },
+        { tx: mockTx },
+      );
+      expect(result).toEqual({ ...updatedUser, image: undefined });
     });
 
     it('should update only provided fields', async () => {
@@ -72,16 +118,25 @@ describe('UpdateUserUseCase', () => {
         name: 'Jane Doe',
       };
 
+      const mockTx: any = {};
+
       jest.spyOn(userRepository, 'findById').mockResolvedValue(mockUser);
+      jest
+        .spyOn(atomic, 'tx')
+        .mockImplementation((callback) => callback(mockTx));
       jest.spyOn(userRepository, 'update').mockResolvedValue(mockUser);
 
       await useCase.execute(updateData);
 
-      expect(userRepository.update).toHaveBeenCalledWith('user-1', {
-        name: 'Jane Doe',
-        email: undefined,
-        callname: undefined,
-      });
+      expect(userRepository.update).toHaveBeenCalledWith(
+        'user-1',
+        {
+          name: 'Jane Doe',
+          email: undefined,
+          callname: undefined,
+        },
+        { tx: mockTx },
+      );
     });
 
     it('should throw NotFoundException when user not found', async () => {

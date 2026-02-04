@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import 'dotenv/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
@@ -23,13 +24,14 @@ describe('UsersController (e2e)', () => {
 
     prisma = app.get<PrismaService>(PrismaService);
 
-    // Create a test user and get auth token
-    // Note: You'll need to adjust this based on your auth setup
+    // Login with seeded admin user (see prisma/seed.ts)
+    // Email: admin@example.com
+    // Password: Admin123
     const loginResponse = await request(app.getHttpServer())
       .post('/api/auth/password/login')
       .send({
-        email: 'test@example.com',
-        password: 'testpassword123',
+        email: 'admin@example.com',
+        password: 'Admin123',
       });
 
     if (loginResponse.body.access_token) {

@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { GetUserByIdUseCase } from './get-user-by-id.use-case';
 import { PrismaService } from 'src/services/prisma/prisma.service';
+import { UserImageDisk } from '../../storage/user-image.disk';
 
 describe('GetUserByIdUseCase', () => {
   let useCase: GetUserByIdUseCase;
@@ -31,6 +32,16 @@ describe('GetUserByIdUseCase', () => {
             user: {
               findFirst: jest.fn(),
             },
+          },
+        },
+        {
+          provide: UserImageDisk,
+          useValue: {
+            get: jest.fn().mockResolvedValue({
+              getUrl: jest
+                .fn()
+                .mockResolvedValue('http://example.com/avatar.jpg'),
+            }),
           },
         },
       ],
@@ -66,7 +77,7 @@ describe('GetUserByIdUseCase', () => {
           updated_at: true,
         },
       });
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual({ ...mockUser, image: undefined });
     });
 
     it('should throw NotFoundException when user not found', async () => {

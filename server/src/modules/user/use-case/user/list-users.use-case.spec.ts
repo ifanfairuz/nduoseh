@@ -3,6 +3,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ListUsersUseCase } from './list-users.use-case';
 import { PrismaService } from 'src/services/prisma/prisma.service';
+import { UserImageDisk } from '../../storage/user-image.disk';
 
 describe('ListUsersUseCase', () => {
   let useCase: ListUsersUseCase;
@@ -57,6 +58,16 @@ describe('ListUsersUseCase', () => {
             },
           },
         },
+        {
+          provide: UserImageDisk,
+          useValue: {
+            get: jest.fn().mockResolvedValue({
+              getUrl: jest
+                .fn()
+                .mockResolvedValue('http://example.com/avatar.jpg'),
+            }),
+          },
+        },
       ],
     }).compile();
 
@@ -90,13 +101,17 @@ describe('ListUsersUseCase', () => {
           created_at: true,
           updated_at: true,
         },
-        orderBy: { created_at: 'desc' },
+        orderBy: [{ created_at: 'asc' }],
         skip: 0,
         take: 10,
       });
 
       expect(result).toEqual({
-        data: mockUsers,
+        data: [
+          { ...mockUsers[0], image: null },
+          { ...mockUsers[1], image: 'http://example.com/avatar.jpg' },
+          { ...mockUsers[2], image: null },
+        ],
         pagination: {
           page: 1,
           limit: 10,
@@ -239,7 +254,7 @@ describe('ListUsersUseCase', () => {
         }),
       );
 
-      expect(result.data).toEqual(matchedUsers);
+      expect(result.data).toEqual([{ ...matchedUsers[0], image: null }]);
       expect(result.pagination.total).toBe(1);
     });
 

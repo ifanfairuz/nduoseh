@@ -9,6 +9,7 @@ import { UserRepository } from '../../repositories/user.repository';
 import { AccountRepository } from '../../repositories/account.repository';
 import { HashService } from 'src/services/cipher/hash.service';
 import { PrismaAtomicService } from 'src/services/prisma/atomic.service';
+import { UserImageDisk } from '../../storage/user-image.disk';
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase;
@@ -37,6 +38,14 @@ describe('CreateUserUseCase', () => {
           provide: AccountRepository,
           useValue: {
             createAccountWithPassword: jest.fn(),
+          },
+        },
+        {
+          provide: UserImageDisk,
+          useValue: {
+            get: jest.fn(),
+            save: jest.fn(),
+            delete: jest.fn(),
           },
         },
         {
@@ -114,7 +123,7 @@ describe('CreateUserUseCase', () => {
         },
         { tx: mockTx },
       );
-      expect(result).toEqual(createdUser);
+      expect(result).toEqual({ ...createdUser, image: undefined });
     });
 
     it('should create user with default callname from name when not provided', async () => {
