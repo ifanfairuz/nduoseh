@@ -39,7 +39,10 @@ const ListRolesQuery = z.object({
     .max(100, 'Limit cannot exceed 100')
     .optional(),
   keyword: z.string().max(100, 'Keyword too long').optional(),
-  sort: z.array(z.any()).optional(),
+  sort: z
+    .array(z.string())
+    .max(20, 'Cannot sort by more than 20 fields')
+    .optional(),
 });
 
 const CreateRoleBody = z.object({

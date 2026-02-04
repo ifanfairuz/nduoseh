@@ -75,8 +75,11 @@ export class XFile {
         return Promise.resolve(this._url);
       }
 
-      // Normalize base URL - remove trailing slash
-      const normalizedBase = _baseUrl.replace(/\/+$/, '');
+      // Normalize base URL - remove trailing slashes (avoid ReDoS)
+      let normalizedBase = _baseUrl;
+      while (normalizedBase.endsWith('/')) {
+        normalizedBase = normalizedBase.slice(0, -1);
+      }
 
       // Normalize relative URL - ensure it starts with /
       const normalizedUrl = this._url.startsWith('/')

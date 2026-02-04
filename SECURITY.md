@@ -114,6 +114,36 @@ Nduoseh includes enterprise-grade security features out of the box:
   - Structured error responses
   - Production vs development error details
 
+## Recent Security Improvements
+
+### 2026-02-04
+
+**Fixed ReDoS Vulnerability (CVE-TBD)**
+- **Location**: `server/src/services/storage/contract/xfile.ts:79`
+- **Issue**: Polynomial regular expression `/\/+$/` could cause catastrophic backtracking with specially crafted input containing many consecutive slashes
+- **Fix**: Replaced regex-based trailing slash removal with iterative string slicing
+- **Impact**: Prevents potential Denial of Service attacks via malicious URL inputs
+- **Severity**: Medium
+
+**Fixed Loop Bound Injection (CVE-TBD)**
+- **Location**: `server/src/services/prisma/prisma.util.ts:9`
+- **Issue**: Loop bound derived from uncontrolled user input (`query.length`) without validation, allowing potential resource exhaustion
+- **Fix**:
+  - Added `MAX_SORT_FIELDS` constant (10 fields max)
+  - Limited loop iterations to prevent excessive processing
+  - Added early termination when max sort fields reached
+  - Implemented bounds checking for array access
+- **Additional Hardening**:
+  - Added Zod validation in `users.controller.ts` and `roles.controller.ts` limiting sort array to maximum 20 elements
+  - Changed schema from `z.array(z.any())` to `z.array(z.string()).max(20)` for type safety
+- **Impact**: Prevents Denial of Service attacks via malicious pagination/sorting parameters
+- **Severity**: Medium
+
+These fixes implement defense-in-depth security:
+1. **Input Validation Layer**: Zod schemas reject oversized arrays at the API boundary
+2. **Business Logic Layer**: Utility functions enforce hard limits during processing
+3. **Type Safety**: Improved type constraints prevent accidental misuse
+
 ## Security Best Practices
 
 Follow these guidelines when deploying Nduoseh in production:
