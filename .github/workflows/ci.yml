@@ -1,0 +1,252 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-format:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint server
+        working-directory: ./server
+        run: npm run lint
+
+      - name: Check server formatting
+        working-directory: ./server
+        run: npx prettier --check "src/**/*.ts" "test/**/*.ts"
+
+  server-unit-tests:
+    name: Server Unit Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: panah_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate RSA keys for testing
+        working-directory: ./server
+        run: |
+          openssl genrsa -out pkey.pem -passout pass:testsecret 2048
+          openssl rsa -in pkey.pem -passin pass:testsecret -pubout -out pubkey.pem
+
+      - name: Setup test environment
+        working-directory: ./server
+        run: |
+          cat > .env << EOF
+          DATABASE_URL="postgresql://test:test@localhost:5432/panah_test"
+          REDIS_URL="redis://localhost:6379"
+          PRIVATE_KEY_PATH=pkey.pem
+          PUBLIC_KEY_PATH=pubkey.pem
+          PRIVATE_KEY_PASSPHRASE=testsecret
+          CORS_ORIGIN=*
+          SWAGGER_DISABLE=true
+          EOF
+
+      - name: Generate Prisma Client
+        working-directory: ./server
+        run: npx prisma generate
+
+      - name: Run database migrations
+        working-directory: ./server
+        run: npx prisma migrate deploy
+
+      - name: Run unit tests
+        working-directory: ./server
+        run: npm test
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-unit-coverage
+          path: server/coverage/
+          retention-days: 7
+
+  server-e2e-tests:
+    name: Server E2E Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: panah_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate RSA keys for testing
+        working-directory: ./server
+        run: |
+          openssl genrsa -out pkey.pem -passout pass:testsecret 2048
+          openssl rsa -in pkey.pem -passin pass:testsecret -pubout -out pubkey.pem
+
+      - name: Setup test environment
+        working-directory: ./server
+        run: |
+          cat > .env << EOF
+          DATABASE_URL="postgresql://test:test@localhost:5432/panah_test"
+          REDIS_URL="redis://localhost:6379"
+          PRIVATE_KEY_PATH=pkey.pem
+          PUBLIC_KEY_PATH=pubkey.pem
+          PRIVATE_KEY_PASSPHRASE=testsecret
+          CORS_ORIGIN=*
+          SWAGGER_DISABLE=true
+          EOF
+
+      - name: Generate Prisma Client
+        working-directory: ./server
+        run: npx prisma generate
+
+      - name: Run database migrations
+        working-directory: ./server
+        run: npx prisma migrate deploy
+
+      - name: Seed database
+        working-directory: ./server
+        run: npx tsx prisma/seed.ts
+
+      - name: Run E2E tests
+        working-directory: ./server
+        run: npm run test:e2e
+
+  web-build:
+    name: Web Build & Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check web
+        working-directory: ./web
+        run: npx vue-tsc -b --noEmit
+
+      - name: Build web
+        working-directory: ./web
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: web/dist/
+          retention-days: 7
+
+  contract-typecheck:
+    name: Contract Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check contract
+        working-directory: ./contract
+        run: npx tsc --noEmit

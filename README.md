@@ -1,5 +1,8 @@
 # Nduoseh - Full-Stack Starter Template
 
+[![CI](https://github.com/ifanfairuz/nduoseh/actions/workflows/ci.yml/badge.svg)](https://github.com/ifanfairuz/nduoseh/actions/workflows/ci.yml)
+[![Test Coverage](https://github.com/ifanfairuz/nduoseh/actions/workflows/coverage.yml/badge.svg)](https://github.com/ifanfairuz/nduoseh/actions/workflows/coverage.yml)
+
 A production-ready, enterprise-grade starter template for building modern web applications with authentication, authorization, and modular architecture out of the box.
 
 ## Overview

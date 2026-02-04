@@ -1,5 +1,5 @@
 {
-  "name": "panah",
+  "name": "nduoseh",
   "private": true,
   "description": "Modular Sales App",
   "keywords": [
@@ -8,13 +8,13 @@
     "app",
     "modular"
   ],
-  "homepage": "https://github.com/ifanfairuz/panah#readme",
+  "homepage": "https://github.com/ifanfairuz/nduoseh#readme",
   "bugs": {
-    "url": "https://github.com/ifanfairuz/panah/issues"
+    "url": "https://github.com/ifanfairuz/nduoseh/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ifanfairuz/panah.git"
+    "url": "git+https://github.com/ifanfairuz/nduoseh.git"
   },
   "license": "ISC",
   "author": "ifanfairuz",

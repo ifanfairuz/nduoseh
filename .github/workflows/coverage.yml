@@ -1,0 +1,138 @@
+name: Test Coverage
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  coverage:
+    name: Generate Coverage Report
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: panah_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate RSA keys for testing
+        working-directory: ./server
+        run: |
+          openssl genrsa -out pkey.pem -passout pass:testsecret 2048
+          openssl rsa -in pkey.pem -passin pass:testsecret -pubout -out pubkey.pem
+
+      - name: Setup test environment
+        working-directory: ./server
+        run: |
+          cat > .env << EOF
+          DATABASE_URL="postgresql://test:test@localhost:5432/panah_test"
+          REDIS_URL="redis://localhost:6379"
+          PRIVATE_KEY_PATH=pkey.pem
+          PUBLIC_KEY_PATH=pubkey.pem
+          PRIVATE_KEY_PASSPHRASE=testsecret
+          CORS_ORIGIN=*
+          SWAGGER_DISABLE=true
+          EOF
+
+      - name: Generate Prisma Client
+        working-directory: ./server
+        run: npx prisma generate
+
+      - name: Run database migrations
+        working-directory: ./server
+        run: npx prisma migrate deploy
+
+      - name: Run tests with coverage
+        working-directory: ./server
+        run: npm run test:cov
+
+      - name: Generate coverage summary
+        if: always()
+        id: coverage
+        run: |
+          if [ -f server/coverage/coverage-summary.json ]; then
+            echo "COVERAGE_LINES=$(cat server/coverage/coverage-summary.json | jq '.total.lines.pct')" >> $GITHUB_OUTPUT
+            echo "COVERAGE_STATEMENTS=$(cat server/coverage/coverage-summary.json | jq '.total.statements.pct')" >> $GITHUB_OUTPUT
+            echo "COVERAGE_FUNCTIONS=$(cat server/coverage/coverage-summary.json | jq '.total.functions.pct')" >> $GITHUB_OUTPUT
+            echo "COVERAGE_BRANCHES=$(cat server/coverage/coverage-summary.json | jq '.total.branches.pct')" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment coverage on PR
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const coveragePath = 'server/coverage/coverage-summary.json';
+
+            if (!fs.existsSync(coveragePath)) {
+              console.log('Coverage file not found');
+              return;
+            }
+
+            const coverage = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
+            const total = coverage.total;
+
+            const comment = `## Test Coverage Report
+
+            | Metric | Coverage |
+            |--------|----------|
+            | Lines | ${total.lines.pct}% |
+            | Statements | ${total.statements.pct}% |
+            | Functions | ${total.functions.pct}% |
+            | Branches | ${total.branches.pct}% |
+
+            <details>
+            <summary>Coverage by file</summary>
+
+            | File | Lines | Statements | Functions | Branches |
+            |------|-------|------------|-----------|----------|
+            ${Object.entries(coverage)
+              .filter(([key]) => key !== 'total')
+              .map(([file, data]) =>
+                `| ${file.replace('src/', '')} | ${data.lines.pct}% | ${data.statements.pct}% | ${data.functions.pct}% | ${data.branches.pct}% |`
+              )
+              .join('\n')}
+
+            </details>`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
