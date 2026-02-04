@@ -27,6 +27,7 @@ import { ValidationException } from "@/api/exceptions/ValidationException";
 import { WithMessageException } from "@/api/exceptions/WithMessageException";
 import { toast } from "vue-sonner";
 import { Button } from "@/components/ui/button";
+import { UserCircle2 } from "lucide-vue-next";
 
 const props = defineProps<{
   type: T;
@@ -42,12 +43,42 @@ const schema = z
     name: z.string().min(2).max(255),
     email: z.string().email(),
     callname: z.string().max(20).nullable(),
-    password: z.string().min(8).max(20),
-    password_confirmation: z.string(),
+    password: z
+      .string()
+      .max(20, { message: "Password must be less than 20 characters" })
+      .superRefine((v, ctx) => {
+        const val = v.length ? v : undefined;
+        if (props.type == "update" && typeof val == "undefined") return;
+
+        const res = z
+          .string()
+          .min(8, { message: "Password must be at least 8 characters long" })
+          .refine((val) => /[A-Z]/.test(val), {
+            message: "Password must contain at least one uppercase letter",
+          })
+          .refine((val) => /[a-z]/.test(val), {
+            message: "Password must contain at least one lowercase letter",
+          })
+          .refine((val) => /[0-9]/.test(val), {
+            message: "Password must contain at least one number",
+          })
+          .safeParse(val);
+
+        if (!res.success) {
+          res.error.issues.forEach((issue) => {
+            ctx.addIssue({
+              code: "custom",
+              message: issue.message,
+              path: issue.path,
+            });
+          });
+        }
+      }),
+    password_confirmation: z.string().optional(),
     image: z.instanceof(File).nullable().optional(),
   })
   .superRefine((val, ctx) => {
-    if (val.password !== val.password_confirmation) {
+    if (val.password && val.password !== val.password_confirmation) {
       ctx.addIssue({
         code: "custom",
         message: "Password does not match",
@@ -70,7 +101,7 @@ const onSubmit = form.handleSubmit(async (data) => {
   loading.value = true;
   try {
     if (props.type == "create") {
-      const user = await createUser(data);
+      const user = await createUser(data as any);
       toast.success("Success create user");
       emit("updated", user);
     } else {
@@ -111,7 +142,10 @@ const onSubmit = form.handleSubmit(async (data) => {
       />
       <Card class="w-full col-span-2">
         <CardHeader>
-          <CardTitle>User Data</CardTitle>
+          <CardTitle class="flex items-center gap-2">
+            <UserCircle2 class="h-5 w-5" />
+            User Data
+          </CardTitle>
           <CardDescription> Change User information </CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">

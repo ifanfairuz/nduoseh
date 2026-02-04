@@ -30,6 +30,37 @@ const UpdateBody = z.object({
     .string("Callname can't be empty")
     .min(1, "Callname can't be empty")
     .max(20),
+  password: z
+    .string()
+    .max(20, { message: 'Password must be less than 20 characters' })
+    .superRefine((v, ctx) => {
+      const val = v.length ? v : undefined;
+      if (typeof val == 'undefined') return;
+
+      const res = z
+        .string()
+        .min(8, { message: 'Password must be at least 8 characters long' })
+        .refine((val) => /[A-Z]/.test(val), {
+          message: 'Password must contain at least one uppercase letter',
+        })
+        .refine((val) => /[a-z]/.test(val), {
+          message: 'Password must contain at least one lowercase letter',
+        })
+        .refine((val) => /[0-9]/.test(val), {
+          message: 'Password must contain at least one number',
+        })
+        .safeParse(val);
+
+      if (!res.success) {
+        res.error.issues.forEach((issue) => {
+          ctx.addIssue({
+            code: 'custom',
+            message: issue.message,
+            path: issue.path,
+          });
+        });
+      }
+    }),
 });
 
 @ApiController('me', { tag: 'User', auth: true })

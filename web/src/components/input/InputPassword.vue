@@ -5,7 +5,6 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "../ui/input-group";
-import { Button } from "../ui/button";
 import { computed, ref } from "vue";
 
 const props = withDefaults(
@@ -34,14 +33,9 @@ const icon = computed(() => (show.value ? EyeIcon : EyeOffIcon));
       :type="show ? 'text' : 'password'"
     />
     <InputGroupAddon align="inline-end" class="absolute right-0">
-      <Button
-        variant="ghost"
-        type="button"
-        class="bg-transparent!"
-        @click="show = !show"
-      >
-        <component :is="icon" />
-      </Button>
+      <span @click="show = !show" class="cursor-pointer">
+        <component :is="icon" class="size-4" />
+      </span>
     </InputGroupAddon>
   </InputGroup>
 </template>

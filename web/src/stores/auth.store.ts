@@ -132,7 +132,7 @@ export const useAuthStore = defineStore("auth", {
       } finally {
         saveToStorage(null);
         this.$reset();
-        this.inited = true;
+        this.inited = false;
       }
     },
     async update(data: IUpdateMeBody) {

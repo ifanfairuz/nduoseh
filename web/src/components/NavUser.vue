@@ -19,14 +19,21 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/stores/auth.store";
 import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
 
 const { isMobile } = useSidebar();
 const store = useAuthStore();
 const { userData, acronim } = storeToRefs(store);
+const router = useRouter();
+
+const logout = async () => {
+  await store.logout();
+  router.push({ name: "login" });
+};
 </script>
 
 <template>
-  <SidebarMenu>
+  <SidebarMenu v-if="userData">
     <SidebarMenuItem>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
@@ -35,14 +42,14 @@ const { userData, acronim } = storeToRefs(store);
             class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
             <Avatar class="h-8 w-8 rounded-lg">
-              <AvatarImage :src="userData!.image ?? ''" :alt="userData!.name" />
+              <AvatarImage :src="userData.image ?? ''" :alt="userData.name" />
               <AvatarFallback class="rounded-lg">
                 {{ acronim }}
               </AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
-              <span class="truncate font-medium">{{ userData!.name }}</span>
-              <span class="truncate text-xs">{{ userData!.email }}</span>
+              <span class="truncate font-medium">{{ userData.name }}</span>
+              <span class="truncate text-xs">{{ userData.email }}</span>
             </div>
             <ChevronsUpDown class="ml-auto size-4" />
           </SidebarMenuButton>
@@ -56,17 +63,14 @@ const { userData, acronim } = storeToRefs(store);
           <DropdownMenuLabel class="p-0 font-normal">
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
               <Avatar class="h-8 w-8 rounded-lg">
-                <AvatarImage
-                  :src="userData!.image ?? ''"
-                  :alt="userData!.name"
-                />
+                <AvatarImage :src="userData.image ?? ''" :alt="userData.name" />
                 <AvatarFallback class="rounded-lg">
                   {{ acronim }}
                 </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
-                <span class="truncate font-semibold">{{ userData!.name }}</span>
-                <span class="truncate text-xs">{{ userData!.email }}</span>
+                <span class="truncate font-semibold">{{ userData.name }}</span>
+                <span class="truncate text-xs">{{ userData.email }}</span>
               </div>
             </div>
           </DropdownMenuLabel>
@@ -85,7 +89,7 @@ const { userData, acronim } = storeToRefs(store);
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem as-child>
-            <button type="button" @click="store.logout()" class="w-full">
+            <button type="button" @click="logout" class="w-full">
               <LogOut />
               Log out
             </button>

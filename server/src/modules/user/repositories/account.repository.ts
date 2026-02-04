@@ -46,6 +46,37 @@ export class AccountRepository extends PrismaRepository {
     });
   }
 
+  async updatePasswordAccount(
+    payload: AccountCreateWithPasswordPayload,
+    options?: PrismaMethodOptions,
+  ): Promise<Account | null> {
+    const res = await this._client(options).account.updateManyAndReturn({
+      where: {
+        user_id: payload.user_id,
+        account_id: payload.user_id,
+        provider_id: 'password',
+      },
+      data: {
+        password: payload.password,
+      },
+      select: {
+        id: true,
+        user_id: true,
+        password: true,
+        access_token: true,
+        refresh_token: true,
+        access_token_expires_at: true,
+        refresh_token_expires_at: true,
+        id_token: true,
+        scope: true,
+        provider_id: true,
+        account_id: true,
+      },
+    });
+
+    return res.shift() ?? null;
+  }
+
   async createAccountWithSSO(
     payload: AccountCreateWithSSOPayload,
     options?: PrismaMethodOptions,

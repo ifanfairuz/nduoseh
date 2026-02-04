@@ -11,6 +11,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ErrorMessage from "@/components/ErrorMessage.vue";
 import type { User } from "@panah/contract";
+import { Image } from "lucide-vue-next";
 
 const props = defineProps<{
   file?: any | null;
@@ -80,7 +81,10 @@ const handleCancel = () => {
 <template>
   <Card class="w-full">
     <CardHeader>
-      <CardTitle>Foto Profil</CardTitle>
+      <CardTitle class="flex items-center gap-2">
+        <Image class="h-5 w-5" />
+        Foto Profil
+      </CardTitle>
       <CardDescription> Upload image (JPG or PNG, under 5MB) </CardDescription>
     </CardHeader>
     <CardContent class="flex flex-col justify-evenly h-full">

@@ -25,15 +25,59 @@ import { ValidationException } from "@/api/exceptions/ValidationException";
 import { WithMessageException } from "@/api/exceptions/WithMessageException";
 import ErrorMessage from "@/components/ErrorMessage.vue";
 import { toast } from "vue-sonner";
+import InputPassword from "@/components/input/InputPassword.vue";
 
 const store = useAuthStore();
 const schema = toTypedSchema(
-  z.object({
-    email: z.string().email(),
-    name: z.string().min(2).max(255),
-    callname: z.string().min(2).max(20),
-  }),
+  z
+    .object({
+      email: z.string().email(),
+      name: z.string().min(2).max(255),
+      callname: z.string().min(2).max(20),
+      password: z
+        .string()
+        .max(20, { message: "Password must be less than 20 characters" })
+        .superRefine((v, ctx) => {
+          const val = v.length ? v : undefined;
+          if (typeof val == "undefined") return;
+
+          const res = z
+            .string()
+            .min(8, { message: "Password must be at least 8 characters long" })
+            .refine((val) => /[A-Z]/.test(val), {
+              message: "Password must contain at least one uppercase letter",
+            })
+            .refine((val) => /[a-z]/.test(val), {
+              message: "Password must contain at least one lowercase letter",
+            })
+            .refine((val) => /[0-9]/.test(val), {
+              message: "Password must contain at least one number",
+            })
+            .safeParse(val);
+
+          if (!res.success) {
+            res.error.issues.forEach((issue) => {
+              ctx.addIssue({
+                code: "custom",
+                message: issue.message,
+                path: issue.path,
+              });
+            });
+          }
+        }),
+      password_confirmation: z.string().optional(),
+    })
+    .superRefine((val, ctx) => {
+      if (val.password && val.password !== val.password_confirmation) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Password does not match",
+          path: ["password_confirmation"],
+        });
+      }
+    }),
 );
+
 const form = useForm({
   validationSchema: schema,
   initialValues: {
@@ -53,6 +97,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       email: values.email,
       name: values.name,
       callname: values.callname,
+      password: values.password,
     });
     toast.success("Success edit profile");
   } catch (err) {
@@ -98,14 +143,15 @@ const onSubmit = form.handleSubmit(async (values) => {
               <FormMessage />
             </FormItem>
           </FormField>
+
           <FormField v-slot="{ componentField }" name="name">
             <FormItem>
-              <FormLabel for="name"> Nama </FormLabel>
+              <FormLabel for="name"> Name </FormLabel>
               <FormControl>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Nama"
+                  placeholder="Name"
                   required
                   autocomplete="name"
                   v-bind="componentField"
@@ -114,14 +160,15 @@ const onSubmit = form.handleSubmit(async (values) => {
               <FormMessage />
             </FormItem>
           </FormField>
+
           <FormField v-slot="{ componentField }" name="callname">
             <FormItem>
-              <FormLabel for="callname"> Nama Panggilan </FormLabel>
+              <FormLabel for="callname"> Nick Name </FormLabel>
               <FormControl>
                 <Input
                   id="callname"
                   type="text"
-                  placeholder="Nama Panggilan"
+                  placeholder="Nick Name"
                   required
                   v-bind="componentField"
                 />
@@ -129,6 +176,27 @@ const onSubmit = form.handleSubmit(async (values) => {
               <FormMessage />
             </FormItem>
           </FormField>
+
+          <FormField name="password" v-slot="{ componentField }">
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <InputPassword v-bind="componentField" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <FormField name="password_confirmation" v-slot="{ componentField }">
+            <FormItem>
+              <FormLabel>Re-Type Password</FormLabel>
+              <FormControl>
+                <InputPassword v-bind="componentField" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
           <Field>
             <Button type="submit" :loading="loading"> simpan </Button>
           </Field>

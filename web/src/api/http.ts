@@ -82,7 +82,7 @@ async function refreshToken(store: ReturnType<typeof useAuthStore>) {
     queue.forEach((fn) => fn(null));
     queue = [];
 
-    store.logout();
+    await store.logout();
     throw error;
   } finally {
     is_refreshing = false;

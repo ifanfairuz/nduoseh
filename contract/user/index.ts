@@ -17,6 +17,7 @@ export interface IUpdateMeBody {
   email: string;
   name: string;
   callname: string;
+  password?: string;
 }
 
 export interface IUpdateMeImageBody {
