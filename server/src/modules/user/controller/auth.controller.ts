@@ -9,7 +9,7 @@ import {
 } from 'src/utils/http';
 import { Validation } from 'src/utils/validation';
 import z from 'zod';
-import type { ILoginWithPasswordBody } from '@panah/contract';
+import type { ILoginWithPasswordBody } from '@nduoseh/contract';
 import { LoginPasswordUseCase } from '../use-case/login/login-password.use-case';
 import { AuthResponse, RefreshTokenResponse } from '../response/auth.response';
 import { UserImageDisk } from '../storage/user-image.disk';

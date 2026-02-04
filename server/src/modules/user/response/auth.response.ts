@@ -5,7 +5,7 @@ import type {
   IAuthResponse,
   IRefreshTokenResponse,
   IVerifyTokenResponse,
-} from '@panah/contract';
+} from '@nduoseh/contract';
 import { MeResponse } from './user.response';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserImageDisk } from '../storage/user-image.disk';

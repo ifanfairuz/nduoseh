@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { VerifiedToken } from '@panah/contract';
+import { VerifiedToken } from '@nduoseh/contract';
 import { UserRepository } from '../../repositories/user.repository';
 import { VerifyTokenUseCase } from '../token/verify-token.use-case';
 import { GetUserInfoUseCase } from '../user/get-user-info.user-case';

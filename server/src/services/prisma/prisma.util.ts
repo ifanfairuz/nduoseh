@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { SortQueries } from '@panah/contract';
+import { SortQueries } from '@nduoseh/contract';
 
 export function fromQueries<T extends Record<string, Prisma.SortOrder>[]>(
   query: SortQueries,

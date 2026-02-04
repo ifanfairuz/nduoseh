@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ErrorMessage from "@/components/ErrorMessage.vue";
-import type { User } from "@panah/contract";
+import type { User } from "@nduoseh/contract";
 import { Image } from "lucide-vue-next";
 
 const props = defineProps<{

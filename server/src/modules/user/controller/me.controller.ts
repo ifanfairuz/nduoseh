@@ -14,7 +14,7 @@ import {
 
 import { MeResponse } from '../response/user.response';
 import { ApiController, ApiResponse, Token, Domain } from 'src/utils/http';
-import type { IUpdateMeBody, VerifiedToken } from '@panah/contract';
+import type { IUpdateMeBody, VerifiedToken } from '@nduoseh/contract';
 import { Validation } from 'src/utils/validation';
 import { GetMeUseCase } from '../use-case/me/get-me.user.use-case';
 import { UpdateMeUseCase } from '../use-case/me/update.me.use-case';

@@ -1,4 +1,4 @@
-import type { Branch } from "@panah/contract";
+import type { Branch } from "@nduoseh/contract";
 // import http from "./http";
 
 export async function getBranches(): Promise<Branch[]> {

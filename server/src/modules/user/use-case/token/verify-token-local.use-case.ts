@@ -3,8 +3,8 @@ import { VerifyTokenUseCase } from './verify-token.use-case';
 import { AccessTokenService } from '../../services/access-token.service';
 import { AccessTokenRepository } from '../../repositories/access-token.repository';
 import { UserRepository } from '../../repositories/user.repository';
-import { ClientInfo } from '@panah/contract';
-import { VerifiedToken } from '@panah/contract';
+import { ClientInfo } from '@nduoseh/contract';
+import { VerifiedToken } from '@nduoseh/contract';
 import { ErrorTokenException } from '../../exceptions/ErrorTokenException';
 
 @Injectable()

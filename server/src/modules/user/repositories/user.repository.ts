@@ -3,7 +3,7 @@ import {
   PrismaMethodOptions,
   PrismaRepository,
 } from 'src/services/prisma/prisma.repository';
-import { User } from '@panah/contract';
+import { User } from '@nduoseh/contract';
 import { EmailAlreadyExistsException } from '../exceptions/EmailAlreadyExistsException';
 import { createCuid2Generator } from 'src/utils/generator';
 

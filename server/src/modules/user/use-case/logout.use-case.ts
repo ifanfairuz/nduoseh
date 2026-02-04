@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AuthSessionRepository } from '../repositories/auth-session.repository';
 import { RefreshTokenRepository } from '../repositories/refresh-token.repository';
 import { AccessTokenRepository } from '../repositories/access-token.repository';
-import { VerifiedToken } from '@panah/contract';
+import { VerifiedToken } from '@nduoseh/contract';
 
 @Injectable()
 export class LogoutUseCase {

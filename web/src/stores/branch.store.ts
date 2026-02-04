@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { Branch } from "@panah/contract";
+import type { Branch } from "@nduoseh/contract";
 import { getBranches } from "@/api/branch.api";
 
 const STORAGE_KEY = "branch";

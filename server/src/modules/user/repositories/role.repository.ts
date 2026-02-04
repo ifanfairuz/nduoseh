@@ -3,7 +3,7 @@ import {
   PrismaMethodOptions,
   PrismaRepository,
 } from 'src/services/prisma/prisma.repository';
-import { Role } from '@panah/contract';
+import { Role } from '@nduoseh/contract';
 import { createCuid2Generator } from 'src/utils/generator';
 import { ConflictException } from '@nestjs/common';
 

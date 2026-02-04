@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { User } from "@panah/contract";
+import type { User } from "@nduoseh/contract";
 const props = defineProps<{
   data: User;
 }>();

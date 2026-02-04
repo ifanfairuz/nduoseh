@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { User } from "@panah/contract";
+import type { User } from "@nduoseh/contract";
 import type { ColumnDef, SortingState } from "@tanstack/vue-table";
 import {
   keepPreviousData,

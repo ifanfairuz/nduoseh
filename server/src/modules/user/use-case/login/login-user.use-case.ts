@@ -1,8 +1,8 @@
 import { getUnixTime } from 'date-fns';
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Account, AuthSession, Role } from '@panah/contract';
-import { ClientInfo, LoginResponse } from '@panah/contract';
+import { Account, AuthSession, Role } from '@nduoseh/contract';
+import { ClientInfo, LoginResponse } from '@nduoseh/contract';
 import { AuthSessionRepository } from '../../repositories/auth-session.repository';
 import { RefreshTokenRepository } from '../../repositories/refresh-token.repository';
 import { AccessTokenRepository } from '../../repositories/access-token.repository';

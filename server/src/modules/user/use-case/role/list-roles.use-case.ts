@@ -1,7 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/services/prisma/prisma.service';
-import type { OffsetPaginatedResult, SortQueries, Role } from '@panah/contract';
+import type {
+  OffsetPaginatedResult,
+  SortQueries,
+  Role,
+} from '@nduoseh/contract';
 import { fromQueries } from 'src/services/prisma/prisma.util';
 
 export interface ListRolesParams {

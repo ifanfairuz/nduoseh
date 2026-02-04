@@ -5,7 +5,7 @@ import type {
   IMeResponse,
   IUpdateMeBody,
   TokenResponse,
-} from "@panah/contract";
+} from "@nduoseh/contract";
 import { fromUnixTime, getUnixTime, isBefore } from "date-fns";
 import { defineStore } from "pinia";
 import { computed } from "vue";

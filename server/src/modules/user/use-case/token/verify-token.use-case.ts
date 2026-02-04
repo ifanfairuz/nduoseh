@@ -1,4 +1,4 @@
-import { VerifiedToken } from '@panah/contract';
+import { VerifiedToken } from '@nduoseh/contract';
 import { UserRepository } from '../../repositories/user.repository';
 import { ErrorTokenException } from '../../exceptions/ErrorTokenException';
 

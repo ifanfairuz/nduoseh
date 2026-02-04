@@ -26,7 +26,7 @@ import type {
   ICreateUserBody,
   IUpdateUserBody,
   OffsetPaginationParams,
-} from '@panah/contract';
+} from '@nduoseh/contract';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageProfileValidator } from '../validator/image-profile.validator';
 

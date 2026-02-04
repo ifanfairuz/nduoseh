@@ -3,7 +3,7 @@ import { UserRepository } from '../../repositories/user.repository';
 import { PrismaAtomicService } from 'src/services/prisma/atomic.service';
 import { XFile } from 'src/services/storage/contract/xfile';
 import { UserImageDisk } from '../../storage/user-image.disk';
-import { User } from '@panah/contract';
+import { User } from '@nduoseh/contract';
 import { AccountRepository } from '../../repositories/account.repository';
 import { HashService } from 'src/services/cipher/hash.service';
 

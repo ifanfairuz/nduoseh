@@ -5,7 +5,7 @@ import type {
   IUpdateRoleBody,
   OffsetPaginatedResult,
   AvailablePermissionsResponse,
-} from "@panah/contract";
+} from "@nduoseh/contract";
 
 export async function getRoles(): Promise<OffsetPaginatedResult<Role>> {
   const res = await http.get<OffsetPaginatedResult<Role>>("/roles", {

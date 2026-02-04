@@ -1,4 +1,4 @@
-import type { IAuthResponse, ILoginWithPasswordBody } from "@panah/contract";
+import type { IAuthResponse, ILoginWithPasswordBody } from "@nduoseh/contract";
 import http, { createHttpClient } from "./http";
 
 export async function loginWithPassword(body: ILoginWithPasswordBody) {

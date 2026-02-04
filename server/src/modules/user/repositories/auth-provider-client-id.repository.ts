@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AuthProviderClientId } from '@panah/contract';
+import { AuthProviderClientId } from '@nduoseh/contract';
 import {
   PrismaMethodOptions,
   PrismaRepository,

@@ -1,7 +1,7 @@
 import type { Response } from 'express';
 import { Inject, HttpCode, Delete, Logger, Res } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import type { VerifiedToken } from '@panah/contract';
+import type { VerifiedToken } from '@nduoseh/contract';
 
 import { ApiController, ApiResponse, Token } from 'src/utils/http';
 import { LogoutUseCase } from '../use-case/logout.use-case';

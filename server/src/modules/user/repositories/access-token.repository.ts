@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { AccessToken } from '@panah/contract';
+import { AccessToken } from '@nduoseh/contract';
 import { differenceInSeconds } from 'date-fns';
 import { RedisService } from 'src/services/redis/redis.service';
 

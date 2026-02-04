@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserRepository } from '../../repositories/user.repository';
 import { UserImageDisk } from '../../storage/user-image.disk';
-import { VerifiedToken } from '@panah/contract';
+import { VerifiedToken } from '@nduoseh/contract';
 import { GetUserInfoUseCase } from '../user/get-user-info.user-case';
 
 @Injectable()

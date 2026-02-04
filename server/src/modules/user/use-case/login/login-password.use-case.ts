@@ -10,7 +10,7 @@ import {
   ClientInfo,
   ILoginWithPasswordBody,
   LoginResponse,
-} from '@panah/contract';
+} from '@nduoseh/contract';
 
 export interface LoginPasswordPayload {
   data: ILoginWithPasswordBody;

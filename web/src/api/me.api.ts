@@ -1,4 +1,4 @@
-import type { IMeResponse, IUpdateMeBody } from "@panah/contract";
+import type { IMeResponse, IUpdateMeBody } from "@nduoseh/contract";
 import http from "./http";
 
 export async function getMe() {

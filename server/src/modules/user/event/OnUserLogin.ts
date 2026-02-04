@@ -1,4 +1,4 @@
-import { AuthSession } from '@panah/contract';
+import { AuthSession } from '@nduoseh/contract';
 import { MeResult } from '../repositories/user.repository';
 
 export class OnUserLogin {

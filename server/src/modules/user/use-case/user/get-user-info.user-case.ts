@@ -1,4 +1,4 @@
-import { LoginResponse, User } from '@panah/contract';
+import { LoginResponse, User } from '@nduoseh/contract';
 import { GetUserPermissionsUseCase } from '../user-role/get-user-permissions.use-case';
 import { Inject, Injectable } from '@nestjs/common';
 import { MeResult } from '../../repositories/user.repository';

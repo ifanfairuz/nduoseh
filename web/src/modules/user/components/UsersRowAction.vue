@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { User } from "@panah/contract";
+import type { User } from "@nduoseh/contract";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-vue-next";

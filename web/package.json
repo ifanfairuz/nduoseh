@@ -1,5 +1,5 @@
 {
-  "name": "@panah/web",
+  "name": "@nduoseh/web",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@panah/contract": "^0.0.1",
+    "@nduoseh/contract": "^0.0.1",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/vue-query": "^5.92.7",
     "@tanstack/vue-table": "^8.21.3",

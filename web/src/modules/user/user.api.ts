@@ -9,7 +9,7 @@ import type {
   IAssignRoleBody,
   IGetUserRolesResponse,
   IGetUserPermissionsResponse,
-} from "@panah/contract";
+} from "@nduoseh/contract";
 
 export async function getUsers(
   ctx?: QueryTableContext,

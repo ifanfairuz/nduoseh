@@ -1,4 +1,4 @@
-import { Account, User } from '@panah/contract';
+import { Account, User } from '@nduoseh/contract';
 
 export class OnUserRegister {
   constructor(

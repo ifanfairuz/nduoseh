@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserRepository } from '../../repositories/user.repository';
-import { IUpdateMeBody, VerifiedToken } from '@panah/contract';
+import { IUpdateMeBody, VerifiedToken } from '@nduoseh/contract';
 import { GetUserInfoUseCase } from '../user/get-user-info.user-case';
 import { AccountRepository } from '../../repositories/account.repository';
 import { PrismaAtomicService } from 'src/services/prisma/atomic.service';

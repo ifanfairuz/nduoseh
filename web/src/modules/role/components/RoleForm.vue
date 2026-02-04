@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { Role, PermissionGroup } from "@panah/contract";
+import type { Role, PermissionGroup } from "@nduoseh/contract";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useForm } from "vee-validate";
 import z from "zod";

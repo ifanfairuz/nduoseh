@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { Role } from "@panah/contract";
+import type { Role } from "@nduoseh/contract";
 import type { ColumnDef } from "@tanstack/vue-table";
 import {
   keepPreviousData,

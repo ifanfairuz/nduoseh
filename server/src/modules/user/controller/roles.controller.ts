@@ -24,7 +24,7 @@ import { UpdateRoleUseCase } from '../use-case/role/update-role.use-case';
 import { DeleteRoleUseCase } from '../use-case/role/delete-role.use-case';
 import { GetRoleByIdUseCase } from '../use-case/role/get-role-by-id.use-case';
 import { ListRolesUseCase } from '../use-case/role/list-roles.use-case';
-import type { OffsetPaginationParams } from '@panah/contract';
+import type { OffsetPaginationParams } from '@nduoseh/contract';
 
 interface ListRolesQuery extends OffsetPaginationParams {
   keyword?: string;

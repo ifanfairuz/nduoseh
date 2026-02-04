@@ -1,4 +1,4 @@
-import type { IRefreshTokenResponse } from "@panah/contract";
+import type { IRefreshTokenResponse } from "@nduoseh/contract";
 import { config } from "@/lib/config";
 import { useAuthStore } from "@/stores/auth.store";
 import axios, { isAxiosError } from "axios";

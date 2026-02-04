@@ -1,4 +1,4 @@
-import type { User, IMeResponse, LoginResponse } from '@panah/contract';
+import type { User, IMeResponse, LoginResponse } from '@nduoseh/contract';
 import { UserImageDisk } from '../storage/user-image.disk';
 import { ApiProperty } from '@nestjs/swagger';
 

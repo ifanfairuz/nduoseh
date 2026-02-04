@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { User } from "@panah/contract";
+import type { User } from "@nduoseh/contract";
 import { computed, ref } from "vue";
 import { useQuery, useMutation } from "@tanstack/vue-query";
 import { getUserRoles, assignRole, removeRole } from "../user.api";
