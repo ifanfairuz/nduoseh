@@ -22,6 +22,7 @@ export class App implements ObjectPlugin {
     auth.$subscribe((mutation, state) => {
       if (
         mutation.type == MutationType.direct ||
+        mutation.type == MutationType.patchFunction ||
         (mutation.type == MutationType.patchObject &&
           mutation.payload &&
           "user" in mutation.payload)
