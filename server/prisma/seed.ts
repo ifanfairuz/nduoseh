@@ -30,54 +30,6 @@ const defaultRoles = [
       'roles.delete',
     ],
   },
-  {
-    slug: 'store-admin',
-    name: 'Store Administrator',
-    description: 'Full store management including staff and inventory',
-    is_system: false,
-    permissions: [
-      'users.list',
-      'users.create',
-      'users.update',
-      'users.roles.list',
-      'users.roles.assign',
-    ],
-  },
-  {
-    slug: 'store-manager',
-    name: 'Store Manager',
-    description: 'Daily operations, reports, and basic staff management',
-    is_system: false,
-    permissions: ['users.list'],
-  },
-  {
-    slug: 'cashier',
-    name: 'Cashier',
-    description: 'Point of sale operations and basic inventory view',
-    is_system: false,
-    permissions: [],
-  },
-  {
-    slug: 'inventory-manager',
-    name: 'Inventory Manager',
-    description: 'Stock management and supplier relations',
-    is_system: false,
-    permissions: [],
-  },
-  {
-    slug: 'accountant',
-    name: 'Accountant',
-    description: 'Financial reports and accounting operations',
-    is_system: false,
-    permissions: [],
-  },
-  {
-    slug: 'sales-rep',
-    name: 'Sales Representative',
-    description: 'Sales operations and customer management',
-    is_system: false,
-    permissions: [],
-  },
 ];
 
 async function seedRoles() {
@@ -165,7 +117,7 @@ async function seedSuperadmin(superadminRoleId: string) {
             id: genAccountId(),
             account_id: userId,
             provider_id: 'password',
-            password: await passwordService.hash('admin123'),
+            password: await passwordService.hash('Admin123'),
           },
         ],
       },
@@ -182,7 +134,7 @@ async function seedSuperadmin(superadminRoleId: string) {
 
   console.log('  Created superadmin user');
   console.log('  Email: admin@example.com');
-  console.log('  Password: admin123');
+  console.log('  Password: Admin123');
   return user;
 }
 
