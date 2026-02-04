@@ -35,6 +35,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate Prisma
+        working-directory: ./server
+        run: npx prisma generate
+
       - name: Lint server
         working-directory: ./server
         run: npm run lint
@@ -53,7 +57,7 @@ jobs:
         env:
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
-          POSTGRES_DB: panah_test
+          POSTGRES_DB: nduoseh_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -95,7 +99,7 @@ jobs:
         working-directory: ./server
         run: |
           cat > .env << EOF
-          DATABASE_URL="postgresql://test:test@localhost:5432/panah_test"
+          DATABASE_URL="postgresql://test:test@localhost:5432/nduoseh_test"
           REDIS_URL="redis://localhost:6379"
           PRIVATE_KEY_PATH=pkey.pem
           PUBLIC_KEY_PATH=pubkey.pem
@@ -134,7 +138,7 @@ jobs:
         env:
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
-          POSTGRES_DB: panah_test
+          POSTGRES_DB: nduoseh_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -176,7 +180,7 @@ jobs:
         working-directory: ./server
         run: |
           cat > .env << EOF
-          DATABASE_URL="postgresql://test:test@localhost:5432/panah_test"
+          DATABASE_URL="postgresql://test:test@localhost:5432/nduoseh_test"
           REDIS_URL="redis://localhost:6379"
           PRIVATE_KEY_PATH=pkey.pem
           PUBLIC_KEY_PATH=pubkey.pem
