@@ -1,0 +1,193 @@
+# Dependabot configuration for Nduoseh monorepo
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Root workspace - Turborepo and shared dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "nduoseh"
+    labels:
+      - "dependencies"
+      - "root"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    versioning-strategy: increase
+    groups:
+      # Group Turborepo and build tools together
+      build-tools:
+        patterns:
+          - "turbo"
+          - "typescript"
+          - "prettier"
+          - "eslint*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Server workspace - NestJS backend dependencies
+  - package-ecosystem: "npm"
+    directory: "/server"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "nduoseh"
+    labels:
+      - "dependencies"
+      - "server"
+      - "backend"
+    commit-message:
+      prefix: "chore(server)"
+      include: "scope"
+    versioning-strategy: increase
+    groups:
+      # Group NestJS core packages
+      nestjs:
+        patterns:
+          - "@nestjs/*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Group Prisma packages
+      prisma:
+        patterns:
+          - "prisma"
+          - "@prisma/*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Group testing packages
+      testing:
+        patterns:
+          - "jest"
+          - "@types/jest"
+          - "supertest"
+          - "@types/supertest"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Web workspace - Vue 3 frontend dependencies
+  - package-ecosystem: "npm"
+    directory: "/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "nduoseh"
+    labels:
+      - "dependencies"
+      - "web"
+      - "frontend"
+    commit-message:
+      prefix: "chore(web)"
+      include: "scope"
+    versioning-strategy: increase
+    groups:
+      # Group Vue core packages
+      vue:
+        patterns:
+          - "vue"
+          - "vue-router"
+          - "pinia"
+          - "@vue/*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Group Vite and build tools
+      vite:
+        patterns:
+          - "vite"
+          - "vite-*"
+          - "@vitejs/*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Group TailwindCSS packages
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+          - "tw-*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Group TanStack packages
+      tanstack:
+        patterns:
+          - "@tanstack/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Contract workspace - Shared types
+  - package-ecosystem: "npm"
+    directory: "/contract"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "nduoseh"
+    labels:
+      - "dependencies"
+      - "contract"
+      - "types"
+    commit-message:
+      prefix: "chore(contract)"
+      include: "scope"
+    versioning-strategy: increase
+
+  # GitHub Actions - Workflow dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "nduoseh"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci"
+    commit-message:
+      prefix: "chore(ci)"
+      include: "scope"
+
+  # Docker - If using Dockerfiles
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "nduoseh"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(docker)"
+      include: "scope"
