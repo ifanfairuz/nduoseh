@@ -9,7 +9,7 @@ import { Role } from '@prisma/client';
 
 const prisma = new PrismaService();
 
-// Default roles with permissions for store/POS management
+// Default roles with permissions
 const defaultRoles = [
   {
     slug: 'superadmin',
