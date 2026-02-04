@@ -1,10 +1,10 @@
-# Panah - Full-Stack Starter Template
+# Nduoseh - Full-Stack Starter Template
 
 A production-ready, enterprise-grade starter template for building modern web applications with authentication, authorization, and modular architecture out of the box.
 
 ## Overview
 
-Panah is a comprehensive full-stack TypeScript template that provides everything you need to kickstart your next web application. Built with industry best practices and battle-tested patterns, it eliminates months of boilerplate setup and lets you focus on building features that matter.
+Nduoseh is a comprehensive full-stack TypeScript template that provides everything you need to kickstart your next web application. Built with industry best practices and battle-tested patterns, it eliminates months of boilerplate setup and lets you focus on building features that matter.
 
 ### What's Included
 
@@ -13,15 +13,15 @@ Panah is a comprehensive full-stack TypeScript template that provides everything
 - **Modular Architecture** - Plugin-based system that lets you enable/disable features dynamically
 - **Type Safety** - End-to-end type safety from database to UI with shared contracts
 - **Modern Stack** - NestJS backend, Vue 3 frontend, PostgreSQL database, Redis caching
-- **Developer Experience** - Hot reload, automatic API docs, GraphQL support, comprehensive testing setup
+- **Developer Experience** - Hot reload, automatic API docs, comprehensive testing setup
 - **Production Ready** - Error handling, validation, logging, monitoring, and deployment configurations
 
 ## Architecture
 
-Panah is built as a **monorepo** with three main workspaces:
+Nduoseh is built as a **monorepo** with three main workspaces:
 
 ```
-panah/
+nduoseh/
 ├── server/          # NestJS backend API
 ├── web/             # Vue 3 + Vite frontend
 ├── contract/        # Shared TypeScript types
@@ -51,7 +51,7 @@ panah/
 ```bash
 # Clone the repository
 git clone <your-repo-url>
-cd panah
+cd nduoseh
 
 # Install dependencies
 npm install
@@ -71,6 +71,7 @@ npm run dev
 ```
 
 The application will be available at:
+
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3000
 - API Documentation: http://localhost:3000/doc
@@ -78,6 +79,7 @@ The application will be available at:
 ### Default Credentials
 
 After seeding, you can login with:
+
 - Email: `superadmin@example.com`
 - Password: Check your seeder configuration
 
@@ -86,6 +88,7 @@ After seeding, you can login with:
 ### Authentication & Authorization
 
 Out-of-the-box authentication system with:
+
 - JWT tokens with RS256 asymmetric signing
 - Refresh token rotation for enhanced security
 - Session management with device tracking
@@ -96,6 +99,7 @@ Out-of-the-box authentication system with:
 ### User & Role Management
 
 Complete user management system including:
+
 - User CRUD with soft deletes
 - Role creation and assignment
 - Permission grouping and management
@@ -106,16 +110,15 @@ Complete user management system including:
 ### Modular Plugin System
 
 Enable/disable features through configuration:
+
 ```json
 {
-  "modules": [
-    "user",
-    ["your-module", { "config": "here" }]
-  ]
+  "modules": ["user", ["your-module", { "config": "here" }]]
 }
 ```
 
 Each module is self-contained with its own:
+
 - Business logic (use cases)
 - Database models
 - API endpoints
@@ -125,22 +128,16 @@ Each module is self-contained with its own:
 ### API Documentation
 
 Automatic Swagger/OpenAPI documentation for all endpoints. Access at `/doc` to:
+
 - Explore all API endpoints
 - Test requests directly in the browser
 - View request/response schemas
 - Download OpenAPI specification
 
-### GraphQL Support
-
-Optional GraphQL API alongside REST:
-- Type-safe schema definitions
-- Automatic resolver generation
-- Integrated with the same permission system
-- GraphQL playground for development
-
 ## Technology Stack
 
 ### Backend
+
 - **Framework**: NestJS 10
 - **Database**: PostgreSQL with Prisma ORM
 - **Caching**: Redis
@@ -150,6 +147,7 @@ Optional GraphQL API alongside REST:
 - **API Docs**: Swagger/OpenAPI
 
 ### Frontend
+
 - **Framework**: Vue 3 with Composition API
 - **Build Tool**: Vite
 - **State Management**: Pinia
@@ -161,6 +159,7 @@ Optional GraphQL API alongside REST:
 - **Testing**: Vitest
 
 ### DevOps
+
 - **Monorepo**: Turborepo
 - **Package Manager**: npm workspaces
 - **Code Quality**: ESLint + Prettier
@@ -169,7 +168,7 @@ Optional GraphQL API alongside REST:
 ## Project Structure
 
 ```
-panah/
+nduoseh/
 ├── server/                 # Backend workspace
 │   ├── src/
 │   │   ├── modules/       # Feature modules
@@ -238,6 +237,7 @@ npm run build            # Production build
 ### Environment Variables
 
 Key configuration in `server/.env`:
+
 - `DATABASE_URL` - PostgreSQL connection string
 - `REDIS_URL` - Redis connection string
 - `PRIVATE_KEY_PATH` - Path to RSA private key
@@ -249,6 +249,7 @@ See `server/.env.example` for complete list.
 ### Module Configuration
 
 Enable/disable features in `server/config.json`:
+
 ```json
 {
   "modules": ["user"]
@@ -271,7 +272,7 @@ Enable/disable features in `server/config.json`:
 
 ### Adding a New Module
 
-Panah comes with user and role modules as reference implementations. To add your own:
+Nduoseh comes with user and role modules as reference implementations. To add your own:
 
 1. Create module directory in `server/src/modules/{module-name}/`
 2. Define contract types in `contract/{module-name}/`
@@ -330,6 +331,7 @@ docker-compose up -d
 This is a starter template. Fork it, customize it, make it yours!
 
 Best practices:
+
 - Follow existing code patterns
 - Write tests for new features
 - Update documentation

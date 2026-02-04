@@ -1,4 +1,4 @@
-# Server Workspace - NestJS Backend API
+# Nduoseh Server - NestJS Backend API
 
 Production-ready NestJS backend with modular architecture, authentication, authorization, and comprehensive testing.
 
@@ -22,7 +22,6 @@ The server workspace is a NestJS application implementing:
 - **Use Case Architecture** - Clean separation of business logic
 - **JWT Authentication** - RS256 asymmetric signing with refresh tokens
 - **RBAC Authorization** - Role and permission-based access control
-- **GraphQL + REST** - Dual API support
 - **File Storage** - Disk abstraction for file management
 - **Comprehensive Testing** - Unit and E2E test coverage
 
@@ -59,8 +58,7 @@ server/
 │   │   │   ├── guards/            # Authorization guards
 │   │   │   ├── decorators/        # Custom decorators
 │   │   │   ├── services/          # Module services
-│   │   │   ├── storage/           # File storage disks
-│   │   │   └── user.graphql       # GraphQL schema
+│   │   │   └── storage/           # File storage disks
 │   │   └── health-check/          # Health check module
 │   ├── services/                  # Core services
 │   │   ├── prisma/                # Database service
@@ -105,6 +103,7 @@ export class CreateUserUseCase {
 ```
 
 **Benefits**:
+
 - Single responsibility principle
 - Easy to test in isolation
 - Reusable across controllers
@@ -126,21 +125,25 @@ export class UserModule {
   static configure(config: UserModuleConfig): DynamicModule {
     return {
       module: UserModule,
-      providers: [/* ... */],
-      controllers: [/* ... */],
-      exports: [/* ... */],
+      providers: [
+        /* ... */
+      ],
+      controllers: [
+        /* ... */
+      ],
+      exports: [
+        /* ... */
+      ],
     };
   }
 }
 ```
 
 **Enable/disable in `config.json`**:
+
 ```json
 {
-  "modules": [
-    "user",
-    ["your-module", { "option": "value" }]
-  ]
+  "modules": ["user", ["your-module", { "option": "value" }]]
 }
 ```
 
@@ -175,10 +178,9 @@ export class UserImageDisk extends Disk {
 ```
 
 Register in `LoaderModule`:
+
 ```typescript
-LocalStorageModule.registerServer([
-  new UserImageDisk(app),
-]);
+LocalStorageModule.registerServer([new UserImageDisk(app)]);
 ```
 
 ## Getting Started
@@ -199,7 +201,7 @@ cp .env.example .env
 
 ```env
 # Database
-DATABASE_URL="postgresql://user:password@localhost:5432/panah"
+DATABASE_URL="postgresql://user:password@localhost:5432/nduoseh"
 
 # Redis
 REDIS_URL="redis://localhost:6379"
@@ -284,9 +286,8 @@ src/modules/product/
 │   ├── create-product.use-case.ts
 │   ├── list-products.use-case.ts
 │   └── ...
-├── repositories/
-│   └── product.repository.ts
-└── product.graphql (optional)
+└── repositories/
+    └── product.repository.ts
 ```
 
 **2. Define Module**:
@@ -402,6 +403,7 @@ export class ProductsController {
 ### JWT Authentication
 
 **Flow**:
+
 1. User logs in with credentials
 2. Server verifies and returns access + refresh tokens
 3. Client includes access token in `Authorization: Bearer {token}` header
@@ -409,10 +411,12 @@ export class ProductsController {
 5. When access token expires, use refresh token to get new tokens
 
 **Token Types**:
+
 - **Access Token**: Short-lived (configurable, default 15min), contains user permissions
 - **Refresh Token**: Long-lived (configurable, default 7 days), single-use only
 
 **Token Signing**: RS256 asymmetric algorithm
+
 - Private key signs tokens (server only)
 - Public key verifies tokens (can be distributed)
 
@@ -595,30 +599,6 @@ async create(@Body() body: CreateUserDto) {
 ```env
 SWAGGER_DISABLE=false  # Set to true to disable
 SWAGGER_URL=doc        # Custom path
-```
-
-### GraphQL
-
-GraphQL API available at `/graphql`.
-
-**Define Schema** (`user.graphql`):
-
-```graphql
-type User {
-  id: ID!
-  email: String!
-  name: String!
-  roles: [Role!]!
-}
-
-type Query {
-  users(page: Int, limit: Int): UsersPage!
-  user(id: ID!): User
-}
-
-type Mutation {
-  createUser(input: CreateUserInput!): User!
-}
 ```
 
 **Resolvers** use same use cases as REST:

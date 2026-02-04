@@ -1,4 +1,4 @@
-# Contract Workspace - Shared TypeScript Types
+# Nduoseh Contract - Shared TypeScript Types
 
 Type-safe contracts ensuring consistency between server and web workspaces.
 
@@ -88,7 +88,7 @@ export type * from './pagination';
 
 This allows clean imports:
 ```typescript
-import type { IUser, IRole, ICreateUserBody } from '@panah/contract';
+import type { IUser, IRole, ICreateUserBody } from '@nduoseh/contract';
 ```
 
 ## Type Definitions
@@ -152,7 +152,7 @@ export interface IOffsetPaginationParams {
 ### In Server (NestJS)
 
 ```typescript
-import type { ICreateUserBody, IUser } from '@panah/contract';
+import type { ICreateUserBody, IUser } from '@nduoseh/contract';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -165,7 +165,7 @@ export class CreateUserUseCase {
 ### In Web (Vue)
 
 ```typescript
-import type { IUser, IOffsetPaginatedResult } from '@panah/contract';
+import type { IUser, IOffsetPaginatedResult } from '@nduoseh/contract';
 import { apiClient } from '@/api/client';
 
 export const userApi = {
@@ -184,10 +184,10 @@ Always use `type` imports for contracts:
 
 ```typescript
 // ✅ Good
-import type { IUser } from '@panah/contract';
+import type { IUser } from '@nduoseh/contract';
 
 // ❌ Bad (imports at runtime)
-import { IUser } from '@panah/contract';
+import { IUser } from '@nduoseh/contract';
 ```
 
 ### 2. Naming Conventions

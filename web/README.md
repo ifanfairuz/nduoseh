@@ -1,4 +1,4 @@
-# Web Workspace - Vue 3 Frontend
+# Nduoseh Web - Vue 3 Frontend
 
 Modern Vue 3 frontend with TypeScript, TailwindCSS, and comprehensive state management.
 
@@ -115,7 +115,7 @@ Type-safe API clients using shared contracts:
 
 ```typescript
 // user.api.ts
-import type { IUser, ICreateUserBody, IOffsetPaginatedResult } from '@panah/contract';
+import type { IUser, ICreateUserBody, IOffsetPaginatedResult } from '@nduoseh/contract';
 import { apiClient } from '@/api/client';
 
 export const userApi = {
@@ -204,7 +204,7 @@ See the full module creation guide in the web/README.md file for detailed exampl
 ```typescript
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { IUser } from '@panah/contract';
+import type { IUser } from '@nduoseh/contract';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<IUser | null>(null);

@@ -17,7 +17,7 @@ This is a production-ready **starter project template** featuring a modern full-
 - Dynamic module loading system for feature enablement
 - Use-case driven architecture for clean business logic
 - Full-stack type safety via shared contract types
-- GraphQL and REST API support
+- REST API support
 - File storage abstraction with disk pattern
 - Comprehensive testing setup (unit + E2E)
 - Built-in user and role management as reference implementation
@@ -162,7 +162,6 @@ server/
 │   │       ├── auth.guard.ts      # Authentication guard
 │   │       ├── auth.middleware.ts # Auth middleware
 │   │       ├── auth.request.ts    # Auth request type
-│   │       ├── user.graphql       # GraphQL schema
 │   │       ├── controller/        # REST controllers
 │   │       │   ├── auth.controller.ts
 │   │       │   ├── jwk.controller.ts
@@ -468,6 +467,7 @@ The application implements a comprehensive role-based access control (RBAC) syst
 The application provides three decorators for protecting endpoints:
 
 1. **@RequirePermissions** - User must have ALL specified permissions (AND logic)
+
    ```typescript
    @Get()
    @UseGuards(AuthGuard, PermissionsGuard)
@@ -487,6 +487,7 @@ The application provides three decorators for protecting endpoints:
    ```
 
 2. **@SomePermissions** - User must have AT LEAST ONE of the specified permissions (OR logic)
+
    ```typescript
    @Get()
    @UseGuards(AuthGuard, PermissionsGuard)
@@ -650,12 +651,14 @@ All endpoints are prefixed with `/api` unless otherwise noted.
 ### Authentication Endpoints
 
 **Login**:
+
 - `POST /api/auth/password/login` - Login with email and password (public)
   - Body: `{ email: string, password: string }`
   - Returns: `{ user, accessToken, refreshToken, permissions }`
   - Sets `refresh_token` HTTP-only cookie
 
 **Token Management**:
+
 - `GET /api/auth/token/verify` - Verify access token (public)
   - Headers: `Authorization: Bearer {token}`
   - Returns: `{ valid: boolean, user_id: string }`
@@ -665,11 +668,13 @@ All endpoints are prefixed with `/api` unless otherwise noted.
   - Sets new `refresh_token` HTTP-only cookie
 
 **Logout**:
+
 - `DELETE /api/auth/logout` - Logout current user (requires authentication)
   - Clears `refresh_token` cookie
   - Invalidates current session
 
 **JWK Public Key**:
+
 - `GET /api/auth/jwk` - Get JWK public key for token verification (public)
   - Returns: RSA public key in JWK format
 
@@ -848,17 +853,17 @@ Current permissions exported by `UserModule.permissions`:
 ```typescript
 export class UserModule {
   static readonly permissions = [
-    'users.list',
-    'users.create',
-    'users.update',
-    'users.delete',
-    'users.roles.list',
-    'users.roles.assign',
-    'users.roles.remove',
-    'roles.list',
-    'roles.create',
-    'roles.update',
-    'roles.delete',
+    "users.list",
+    "users.create",
+    "users.update",
+    "users.delete",
+    "users.roles.list",
+    "users.roles.assign",
+    "users.roles.remove",
+    "roles.list",
+    "roles.create",
+    "roles.update",
+    "roles.delete",
   ];
 
   static configure(config: UserModuleConfig): DynamicModule {
@@ -959,7 +964,6 @@ Current test coverage includes:
    server/src/modules/{module-name}/
    ├── {module-name}.module.ts       # Main module with configure() method
    ├── {module-name}.controller.ts   # REST endpoints with guards
-   ├── {module-name}.graphql         # GraphQL schema (optional)
    └── use-case/
        ├── create-{entity}.use-case.ts
        ├── list-{entity}.use-case.ts
@@ -1037,7 +1041,10 @@ Current test coverage includes:
 
 ```typescript
 // Contract type
-import { OffsetPaginationParams, OffsetPaginatedResult } from "@panah/contract";
+import {
+  OffsetPaginationParams,
+  OffsetPaginatedResult,
+} from "@nduoseh/contract";
 
 // Use case
 const [total, data] = await Promise.all([
@@ -1218,7 +1225,6 @@ The user and role modules serve as **reference implementations** for all pattern
 - **Frontend patterns**: Table, form, row actions, list/create/edit pages
 - **Type safety**: Full contract types across server and web
 - **Testing**: Unit tests for use cases, E2E tests for endpoints
-- **GraphQL support**: Schema definitions and resolvers
 
 **When implementing new features, refer to these modules for patterns and structure.**
 
@@ -1371,12 +1377,6 @@ The UserRolesManager component is automatically displayed on the user edit page 
 - Check private key passphrase is correct
 - Ensure token hasn't expired (check expiration config)
 - Verify `AuthMiddleware` is properly configured
-
-**GraphQL schema issues**:
-
-- Rebuild GraphQL schema: restart server
-- Check `.graphql` files for syntax errors
-- Verify GraphQL resolvers match schema definitions
 
 **Test failures**:
 
