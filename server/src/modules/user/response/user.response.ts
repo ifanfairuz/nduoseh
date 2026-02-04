@@ -1,33 +1,68 @@
-import { User } from '@panah/contract';
+import type { User, IMeResponse, LoginResponse } from '@nduoseh/contract';
+import { UserImageDisk } from '../storage/user-image.disk';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class UserResponse {
-  static example = {
-    id: 'tz4a98xxat96iws9zmbrgj3a',
-    name: 'John Doe',
-    callname: 'john',
-    email: 'john.doe@example.com',
-    email_verified: true,
-    image: 'https://kai.pics/avatar.png',
-  };
+export class MeResponse implements IMeResponse {
+  @ApiProperty({
+    description: 'User data',
+    example: {
+      id: 'tz4a98xxat96iws9zmbrgj3a',
+      name: 'John Doe',
+      callname: 'john',
+      email: 'john.doe@example.com',
+      email_verified: true,
+      image: 'https://kai.pics/avatar.png',
+    },
+  })
+  data: IMeResponse['data'];
 
-  id: User['id'];
-  email: User['email'];
-  name: User['name'];
-  callname: User['callname'];
-  image: User['image'] = null;
+  @ApiProperty({
+    description: 'Modules',
+    example: ['user', 'product'],
+  })
+  modules: string[];
 
-  constructor(payload: User) {
-    this.id = payload.id;
-    this.email = payload.email;
-    this.name = payload.name;
-    this.callname = payload.callname;
-    this.image = payload.image;
+  @ApiProperty({
+    description: 'Permission',
+    example: ['user.read', 'user.write'],
+  })
+  permissions: string[];
+
+  constructor(
+    payload: User,
+    permissions: string[] = [],
+    modules: string[] = [],
+    roles: LoginResponse['roles'] = [],
+  ) {
+    this.modules = modules;
+    this.permissions = permissions;
+    this.data = {
+      id: payload.id,
+      email: payload.email,
+      name: payload.name,
+      callname: payload.callname,
+      image: payload.image,
+      roles: roles,
+    };
   }
 
-  // static async withImageUrl(payload: User, storage: UserImageStorage) {
-  //   return new UserResponse({
-  //     ...payload,
-  //     image: payload.image ? await storage.getUrl(payload.image) : null,
-  //   });
-  // }
+  static async withImageUrl(
+    payload: User,
+    storage: UserImageDisk,
+    domain?: string,
+    permissions: string[] = [],
+    modules: string[] = [],
+    roles: LoginResponse['roles'] = [],
+  ) {
+    const image = payload.image ? await storage.get(payload.image) : null;
+    return new MeResponse(
+      {
+        ...payload,
+        image: (await image?.getUrl(domain)) ?? null,
+      },
+      permissions,
+      modules,
+      roles,
+    );
+  }
 }

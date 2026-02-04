@@ -1,6 +1,6 @@
 import { getUnixTime } from 'date-fns';
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientInfo } from '@panah/contract';
+import { ClientInfo } from '@nduoseh/contract';
 import { RefreshTokenService } from '../../services/refresh-token.service';
 import { AuthSessionRepository } from '../../repositories/auth-session.repository';
 import { RefreshTokenRepository } from '../../repositories/refresh-token.repository';

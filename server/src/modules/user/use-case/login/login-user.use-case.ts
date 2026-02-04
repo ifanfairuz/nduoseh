@@ -1,8 +1,8 @@
 import { getUnixTime } from 'date-fns';
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Account, AuthSession, User } from '@panah/contract';
-import { ClientInfo, LoginResponse } from '@panah/contract';
+import { Account, AuthSession, Role } from '@nduoseh/contract';
+import { ClientInfo, LoginResponse } from '@nduoseh/contract';
 import { AuthSessionRepository } from '../../repositories/auth-session.repository';
 import { RefreshTokenRepository } from '../../repositories/refresh-token.repository';
 import { AccessTokenRepository } from '../../repositories/access-token.repository';
@@ -10,6 +10,8 @@ import { OnUserLogin } from '../../event/OnUserLogin';
 import { PrismaAtomicService } from 'src/services/prisma/atomic.service';
 import { RefreshTokenService } from '../../services/refresh-token.service';
 import { AccessTokenService } from '../../services/access-token.service';
+import { GetUserInfoUseCase } from '../user/get-user-info.user-case';
+import { MeResult } from '../../repositories/user.repository';
 
 @Injectable()
 export class LoginUserUseCase {
@@ -28,25 +30,27 @@ export class LoginUserUseCase {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     @Inject()
     private readonly accessTokenRepository: AccessTokenRepository,
+    @Inject()
+    private readonly userInfo: GetUserInfoUseCase,
   ) {}
 
   /**
    * Dispatch hooks
    *
    */
-  protected async dispatchHooks(session: AuthSession, user: User) {
+  protected async dispatchHooks(session: AuthSession, user: MeResult) {
     await this.emitter.emitAsync('user.login', new OnUserLogin(session, user));
   }
 
   /**
    * Login user with user id
    *
-   * @param {User} user
+   * @param {MeResult} me
    * @returns {Promise<AuthSession>}
    */
   public async execute(
     account: Account,
-    user: User,
+    me: MeResult,
     client: ClientInfo,
   ): Promise<LoginResponse> {
     const result = await this.atomic.tx(async (tx) => {
@@ -98,8 +102,10 @@ export class LoginUserUseCase {
       };
     });
 
-    await this.dispatchHooks(result.session, user);
+    await this.dispatchHooks(result.session, me);
 
+    const info = await this.userInfo.getInfo(me.id);
+    const { userRoles, ...user } = me;
     return {
       access_token: {
         token: result.access_token.token,
@@ -109,7 +115,9 @@ export class LoginUserUseCase {
         token: result.refresh_token.token,
         expires_at: getUnixTime(result.refresh_token.expires_at),
       },
+      ...info,
       user,
+      roles: userRoles.map((ur) => ur.role as Role),
     };
   }
 }

@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { VerifyTokenUseCase } from './verify-token.use-case';
 import { UserRepository } from '../../repositories/user.repository';
 import type { UserConfig } from '../../config';
-import { ClientInfo } from '@panah/contract';
-import { VerifiedToken } from '@panah/contract';
+import { ClientInfo } from '@nduoseh/contract';
+import { VerifiedToken } from '@nduoseh/contract';
 import { ErrorTokenException } from '../../exceptions/ErrorTokenException';
 
 @Injectable()

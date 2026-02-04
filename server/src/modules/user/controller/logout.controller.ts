@@ -1,10 +1,11 @@
 import type { Response } from 'express';
 import { Inject, HttpCode, Delete, Logger, Res } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import type { VerifiedToken } from '@panah/contract';
+import type { VerifiedToken } from '@nduoseh/contract';
 
 import { ApiController, ApiResponse, Token } from 'src/utils/http';
 import { LogoutUseCase } from '../use-case/logout.use-case';
+import { RefreshTokenResponse } from '../response/auth.response';
 
 @ApiController('auth/logout', { tag: 'Auth' })
 @ApiBearerAuth()
@@ -25,7 +26,8 @@ export class LogoutController {
     status: 204,
     description: 'no-content',
   })
-  async getUser(@Res() res: Response, @Token() token?: VerifiedToken) {
+  async logout(@Res() res: Response, @Token() token?: VerifiedToken) {
+    RefreshTokenResponse.clearCookie(res);
     res.status(204).send();
 
     if (!token) return;

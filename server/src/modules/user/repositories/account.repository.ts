@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Account, PasswordAccount, User } from '@panah/contract';
+import { Account, PasswordAccount, User } from '@nduoseh/contract';
 import {
   PrismaMethodOptions,
   PrismaRepository,
 } from 'src/services/prisma/prisma.repository';
 import { createCuid2Generator } from 'src/utils/generator';
+import { MeResult } from './user.repository';
 
 export type AccountCreateWithPasswordPayload = Pick<
   PasswordAccount,
@@ -13,7 +14,7 @@ export type AccountCreateWithPasswordPayload = Pick<
 
 export type AccountCreateWithSSOPayload = Omit<Account, 'id' | 'password'>;
 
-const genAccountId = createCuid2Generator('account-id', 30);
+export const genAccountId = createCuid2Generator('account-id', 30);
 
 @Injectable()
 export class AccountRepository extends PrismaRepository {
@@ -43,6 +44,37 @@ export class AccountRepository extends PrismaRepository {
         account_id: true,
       },
     });
+  }
+
+  async updatePasswordAccount(
+    payload: AccountCreateWithPasswordPayload,
+    options?: PrismaMethodOptions,
+  ): Promise<Account | null> {
+    const res = await this._client(options).account.updateManyAndReturn({
+      where: {
+        user_id: payload.user_id,
+        account_id: payload.user_id,
+        provider_id: 'password',
+      },
+      data: {
+        password: payload.password,
+      },
+      select: {
+        id: true,
+        user_id: true,
+        password: true,
+        access_token: true,
+        refresh_token: true,
+        access_token_expires_at: true,
+        refresh_token_expires_at: true,
+        id_token: true,
+        scope: true,
+        provider_id: true,
+        account_id: true,
+      },
+    });
+
+    return res.shift() ?? null;
   }
 
   async createAccountWithSSO(
@@ -107,13 +139,28 @@ export class AccountRepository extends PrismaRepository {
             email: true,
             email_verified: true,
             image: true,
+            userRoles: {
+              select: {
+                user_id: true,
+                role_id: true,
+                role: {
+                  select: {
+                    id: true,
+                    name: true,
+                    slug: true,
+                    description: true,
+                    is_system: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
     });
 
     if (result?.password) {
-      return result as PasswordAccount & { user: User };
+      return result as PasswordAccount & { user: MeResult };
     }
 
     return null;
@@ -150,6 +197,21 @@ export class AccountRepository extends PrismaRepository {
             email_verified: true,
             image: true,
             callname: true,
+            userRoles: {
+              select: {
+                user_id: true,
+                role_id: true,
+                role: {
+                  select: {
+                    id: true,
+                    name: true,
+                    slug: true,
+                    description: true,
+                    is_system: true,
+                  },
+                },
+              },
+            },
           },
         },
       },

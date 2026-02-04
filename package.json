@@ -19,7 +19,6 @@
   "license": "ISC",
   "author": "ifanfairuz",
   "workspaces": [
-    "core",
     "contract",
     "server",
     "web"
@@ -30,7 +29,6 @@
     "build": "turbo run build"
   },
   "devDependencies": {
-    "@types/multer": "^2.0.0",
     "turbo": "^2.7.4"
   }
 }

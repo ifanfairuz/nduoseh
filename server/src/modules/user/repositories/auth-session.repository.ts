@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AuthSession } from '@panah/contract';
+import { AuthSession } from '@nduoseh/contract';
 import {
   PrismaMethodOptions,
   PrismaRepository,

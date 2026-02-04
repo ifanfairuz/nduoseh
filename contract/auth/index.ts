@@ -1,4 +1,5 @@
-import type { User } from "../models";
+import type { Role, User } from "../models";
+import type { IMeResponse } from "../user";
 
 export interface ClientInfo {
   ip_address?: string;
@@ -14,5 +15,27 @@ export interface TokenResponse {
 export interface LoginResponse {
   access_token: TokenResponse;
   refresh_token: TokenResponse;
+  permissions: string[];
+  modules: string[];
   user: User;
+  roles: Pick<Role, "id" | "name" | "slug" | "description" | "is_system">[];
+}
+
+export interface IAuthResponse {
+  access_token: TokenResponse;
+  user: IMeResponse;
+}
+
+export interface IRefreshTokenResponse {
+  access_token: TokenResponse;
+}
+
+export interface IVerifyTokenResponse {
+  user_id: string;
+  session_id: string;
+}
+
+export interface ILoginWithPasswordBody {
+  email: string;
+  password: string;
 }

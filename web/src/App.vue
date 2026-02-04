@@ -1,30 +1,18 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import "vue-sonner/style.css";
+import { computed } from "vue";
+import { useAuthStore } from "./stores/auth.store";
+import LoaderScreen from "./components/LoaderScreen.vue";
+import ProgressBar from "./components/ProgressBar.vue";
+import { Toaster } from "@/components/ui/sonner";
+
+const authStore = useAuthStore();
+const loading = computed(() => !authStore.inited);
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <ProgressBar />
+  <loader-screen v-if="loading" />
+  <router-view />
+  <Toaster />
 </template>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>

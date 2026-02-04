@@ -7,15 +7,21 @@ export class PrismaService
   extends PrismaClient
   implements OnApplicationShutdown
 {
+  private readonly _logger = new Logger(PrismaService.name);
+
   constructor() {
     super({
       adapter: new PrismaPg({
         connectionString: process.env.DATABASE_URL,
       }),
+      log: [
+        {
+          emit: 'stdout',
+          level: 'query',
+        },
+      ],
     });
   }
-
-  private readonly _logger = new Logger(PrismaService.name);
 
   /**
    * Test connection

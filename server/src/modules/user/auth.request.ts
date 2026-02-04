@@ -1,4 +1,4 @@
-import { VerifiedToken } from '@panah/contract';
+import { VerifiedToken } from '@nduoseh/contract';
 import { Request } from 'express';
 
 export interface AuthRequest extends Request {

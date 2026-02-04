@@ -3,7 +3,7 @@ import {
   PrismaMethodOptions,
   PrismaRepository,
 } from 'src/services/prisma/prisma.repository';
-import { User } from '@panah/contract';
+import { User } from '@nduoseh/contract';
 import { EmailAlreadyExistsException } from '../exceptions/EmailAlreadyExistsException';
 import { createCuid2Generator } from 'src/utils/generator';
 
@@ -12,7 +12,27 @@ export type UserCreatePayload = Pick<User, 'name' | 'email'> &
 
 export type UserUpdatePayload = Partial<Omit<User, 'id'>>;
 
-const genUserId = createCuid2Generator('user-id', 24);
+export interface MeResult {
+  id: string;
+  name: string;
+  email: string;
+  email_verified: boolean;
+  image: string | null;
+  callname: string | null;
+  userRoles: {
+    role: {
+      id: string;
+      name: string;
+      slug: string;
+      description: string | null;
+      is_system: boolean;
+    };
+    user_id: string;
+    role_id: string;
+  }[];
+}
+
+export const genUserId = createCuid2Generator('user-id', 24);
 
 @Injectable()
 export class UserRepository extends PrismaRepository {
@@ -73,10 +93,71 @@ export class UserRepository extends PrismaRepository {
     });
   }
 
+  async updateMe(
+    id: User['id'],
+    payload: UserUpdatePayload,
+    options?: PrismaMethodOptions,
+  ) {
+    return await this._client(options).user.update({
+      where: { id, deleted_at: null },
+      data: {
+        name: payload.name,
+        email: payload.email,
+        email_verified: payload.email_verified,
+        image: payload.image,
+        callname: payload.callname,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        email_verified: true,
+        image: true,
+        callname: true,
+        userRoles: {
+          select: {
+            user_id: true,
+            role_id: true,
+            role: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                description: true,
+                is_system: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
   async delete(id: User['id'], options?: PrismaMethodOptions) {
     await this._client(options).user.update({
       where: { id },
       data: { deleted_at: new Date() },
+    });
+  }
+
+  async restore(id: User['id'], options?: PrismaMethodOptions) {
+    await this._client(options).user.update({
+      where: { id },
+      data: { deleted_at: null },
+    });
+  }
+
+  async findByIdDeleted(id: User['id'], options?: PrismaMethodOptions) {
+    return await this._client(options).user.findUnique({
+      where: { id, deleted_at: { not: null } },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        email_verified: true,
+        image: true,
+        callname: true,
+      },
     });
   }
 
@@ -90,6 +171,36 @@ export class UserRepository extends PrismaRepository {
         email_verified: true,
         image: true,
         callname: true,
+      },
+    });
+  }
+
+  async findMeById(id: User['id'], options?: PrismaMethodOptions) {
+    return await this._client(options).user.findUnique({
+      where: { id, deleted_at: null },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        email_verified: true,
+        image: true,
+        callname: true,
+        userRoles: {
+          select: {
+            user_id: true,
+            role_id: true,
+            role: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                description: true,
+                is_system: true,
+                permissions: true,
+              },
+            },
+          },
+        },
       },
     });
   }

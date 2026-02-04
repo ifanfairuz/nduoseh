@@ -5,7 +5,7 @@ import type { AuthConfig, UserConfig } from '../config';
 import { JwtService } from './jwt.service';
 import { HashService } from 'src/services/cipher/hash.service';
 import { ErrorTokenException } from '../exceptions/ErrorTokenException';
-import { ClientInfo } from '@panah/contract';
+import { ClientInfo } from '@nduoseh/contract';
 
 export interface TokenPayload extends JWTPayload {
   sub: string;

@@ -2,7 +2,7 @@ import { Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { AuthRequest } from './auth.request';
 import { VerifyTokenUseCase } from './use-case/token/verify-token.use-case';
-import { VerifiedToken } from '@panah/contract';
+import { VerifiedToken } from '@nduoseh/contract';
 import { ErrorTokenException } from './exceptions/ErrorTokenException';
 
 @Injectable()

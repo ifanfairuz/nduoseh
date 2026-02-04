@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AuthSession, RefreshToken } from '@panah/contract';
+import { AuthSession, RefreshToken } from '@nduoseh/contract';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import {
   PrismaMethodOptions,

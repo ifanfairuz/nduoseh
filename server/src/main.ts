@@ -1,15 +1,15 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
-import { Logger } from 'nestjs-pino';
-import { AppModule } from './app.module';
+import { INestApplication } from '@nestjs/common';
 import {
   DocumentBuilder,
   SwaggerCustomOptions,
   SwaggerModule,
 } from '@nestjs/swagger';
-
+import { Logger } from 'nestjs-pino';
+import cookieParser from 'cookie-parser';
 import { version } from '../package.json';
-import { INestApplication } from '@nestjs/common';
+import { AppModule } from './app.module';
 
 /**
  * Setup the API docs
@@ -23,8 +23,8 @@ import { INestApplication } from '@nestjs/common';
 function setupApiDocs(app: INestApplication, options?: SwaggerCustomOptions) {
   const path = process.env.SWAGGER_URL ?? 'doc';
   const doc = new DocumentBuilder()
-    .setTitle('Kai Server API')
-    .setDescription('The Kai Server API documentation')
+    .setTitle('Panah Server API')
+    .setDescription('The Panah Server API documentation')
     .setVersion(version)
     .addBearerAuth()
     .addTag('HealthCheck', 'Application health check')
@@ -38,11 +38,16 @@ function setupApiDocs(app: INestApplication, options?: SwaggerCustomOptions) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
-
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
   const logger = app.get(Logger);
   app.useLogger(logger);
+  app.use(cookieParser());
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN?.split(',') ?? true,
+    credentials: true,
+  });
 
   if (process.env.SWAGGER_DISABLE !== 'true') {
     setupApiDocs(app);

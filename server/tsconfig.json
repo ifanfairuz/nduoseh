@@ -21,6 +21,11 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "types": ["@types/node", "@types/jest", "@types/multer"]
+    "types": [
+      "@types/node",
+      "@types/jest",
+      "@types/multer",
+      "@types/cookie-parser"
+    ]
   }
 }

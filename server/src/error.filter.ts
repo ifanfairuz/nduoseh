@@ -186,7 +186,7 @@ export class ErrorFilter implements ExceptionFilter {
     }
 
     // handle default error
-    this.logger.error('Error Exception', exception);
+    this.logger.error('Error Exception', exception, exception.stack);
     return this.genDefaultErrorRespose(request, response);
   }
 }
