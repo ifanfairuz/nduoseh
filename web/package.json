@@ -26,7 +26,7 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
     "vee-validate": "^4.15.1",
-    "vue": "^3.5.27",
+    "vue": "^3.5.28",
     "vue-router": "^5.0.2",
     "vue-sonner": "^2.0.9",
     "zod": "^3.25.76"
