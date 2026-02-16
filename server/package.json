@@ -30,7 +30,7 @@
     "@nduoseh/contract": "^0.0.1",
     "@paralleldrive/cuid2": "^2.3.1",
     "@prisma/adapter-pg": "^7.4.0",
-    "@prisma/client": "^7.3.0",
+    "@prisma/client": "^7.4.0",
     "argon2": "^0.44.0",
     "cookie-parser": "^1.4.7",
     "date-fns": "^4.1.0",
